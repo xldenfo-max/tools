@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Screenshot Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+        <h1 class="text-2xl font-bold text-center mb-2 text-indigo-400">Website Screenshot Tool</h1>
+        <p class="text-slate-400 text-center text-sm mb-6">Enter a website URL to get Desktop, Tablet, and Mobile screenshots.</p>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Website URL:</label>
+                <input type="text" id="urlInput" placeholder="https://whatsapp.com" 
+                    class="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 text-white placeholder-slate-600">
+            </div>
+            <button onclick="getScreenshot()" id="submitBtn"
+                class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition duration-200 shadow-lg shadow-indigo-600/30">
+                Generate Screenshot
+            </button>
+        </div>
+
+        <div id="loading" class="hidden text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-t-transparent"></div>
+            <p class="text-slate-400 mt-2 text-sm">Processing screenshot...</p>
+        </div>
+
+        <div id="resultContainer" class="hidden mt-8 space-y-8">
+            <!-- Mobile View -->
+            <div class="border-t border-slate-800 pt-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-semibold text-lg text-slate-200">📱 Mobile View</h3>
+                    <a id="downloadMobile" href="" target="_blank" download="mobile-screenshot.png"
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition duration-200 flex items-center gap-1 shadow-md">
+                        📥 Download
+                    </a>
+                </div>
+                <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 flex justify-center">
+                    <img id="mobileImg" src="" alt="Mobile Screenshot" class="rounded-lg max-h-96 object-contain">
+                </div>
+            </div>
+
+            <!-- Tablet View -->
+            <div class="border-t border-slate-800 pt-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-semibold text-lg text-slate-200">タブ Tablet View</h3>
+                    <a id="downloadTablet" href="" target="_blank" download="tablet-screenshot.png"
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition duration-200 flex items-center gap-1 shadow-md">
+                        📥 Download
+                    </a>
+                </div>
+                <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 flex justify-center">
+                    <img id="tabletImg" src="" alt="Tablet Screenshot" class="rounded-lg max-h-96 object-contain">
+                </div>
+            </div>
+
+            <!-- Desktop View -->
+            <div class="border-t border-slate-800 pt-6">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-semibold text-lg text-slate-200">💻 Desktop View</h3>
+                    <a id="downloadDesktop" href="" target="_blank" download="desktop-screenshot.png"
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition duration-200 flex items-center gap-1 shadow-md">
+                        📥 Download
+                    </a>
+                </div>
+                <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 flex justify-center">
+                    <img id="desktopImg" src="" alt="Desktop Screenshot" class="rounded-lg w-full object-contain">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function getScreenshot() {
+            const urlInput = document.getElementById('urlInput').value.trim();
+            const loading = document.getElementById('loading');
+            const resultContainer = document.getElementById('resultContainer');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (!urlInput) {
+                alert('Please enter a valid URL!');
+                return;
+            }
+
+            loading.classList.remove('hidden');
+            resultContainer.classList.add('hidden');
+            submitBtn.disabled = true;
+
+            const apiKey = 'supun-psvotb3j6cn8lv4lb3oniwc5';
+            const apiUrl = `https://supunofc.site/api/convert/website-screenshot?url=${encodeURIComponent(urlInput)}&apikey=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.success && data.result) {
+                    const resData = data.result.result;
+
+                    // Set Image Sources
+                    document.getElementById('mobileImg').src = resData.mobile.url;
+                    document.getElementById('tabletImg').src = resData.tablet.url;
+                    document.getElementById('desktopImg').src = resData.desktop.url;
+
+                    // Set Download Links
+                    document.getElementById('downloadMobile').href = resData.mobile.url;
+                    document.getElementById('downloadTablet').href = resData.tablet.url;
+                    document.getElementById('downloadDesktop').href = resData.desktop.url;
+
+                    resultContainer.classList.remove('hidden');
+                } else {
+                    alert('Failed to fetch screenshot!');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred. Please try again.');
+            } finally {
+                loading.classList.add('hidden');
+                submitBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
