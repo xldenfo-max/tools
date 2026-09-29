@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud drop - High-Performance Cloud Storage</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .glass-card {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glow-effect {
+      box-shadow: 0 0 50px -10px rgba(99, 102, 241, 0.25);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+  <!-- Background Ambient Glow -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+    <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-indigo-600/20 rounded-full blur-[140px]"></div>
+    <div class="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-purple-600/15 rounded-full blur-[140px]"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="w-full max-w-6xl mx-auto px-6 py-8 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-violet-500 flex items-center justify-center shadow-lg shadow-brand-500/30">
+        <i class="fa-solid fa-cloud-arrow-up text-white text-lg"></i>
+      </div>
+      <span class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+        CloudDrop
+      </span>
+    </div>
+    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-800">
+      <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      Cloudinary Network Active
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="w-full max-w-2xl mx-auto px-4 py-6 flex-grow flex flex-col justify-center">
+    
+    <!-- Dropzone Card -->
+    <div class="glass-card rounded-3xl p-8 md:p-10 glow-effect relative overflow-hidden transition-all duration-300">
+      
+      <!-- Upload Form Area -->
+      <div id="uploadContainer" class="space-y-6">
+        <div class="text-center space-y-2">
+          <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">Upload Assets</h1>
+          <p class="text-slate-400 text-sm">Drag and drop your file or browse to instantly upload.</p>
+        </div>
+
+        <!-- Drag & Drop Box -->
+        <div id="dropZone" class="border-2 border-dashed border-slate-700 hover:border-brand-500 bg-slate-900/40 hover:bg-slate-900/80 rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 group relative">
+          <input type="file" id="fileInput" class="hidden" accept="image/*,video/*,application/pdf" />
+          
+          <div class="flex flex-col items-center justify-center space-y-4">
+            <div class="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700/60 flex items-center justify-center group-hover:scale-110 group-hover:border-brand-500/50 group-hover:bg-brand-500/10 transition-all duration-300">
+              <i class="fa-solid fa-cloud-arrow-up text-2xl text-slate-400 group-hover:text-brand-500 transition-colors"></i>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-slate-200">
+                Click to upload <span class="text-slate-500 font-normal">or drag and drop</span>
+              </p>
+              <p class="text-xs text-slate-500 mt-1">PNG, JPG, GIF, MP4 (Max 10MB)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="progressContainer" class="hidden py-8 text-center space-y-5">
+        <div class="relative w-16 h-16 mx-auto">
+          <div class="absolute inset-0 rounded-full border-4 border-slate-800"></div>
+          <div class="absolute inset-0 rounded-full border-4 border-brand-500 border-t-transparent animate-spin"></div>
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-200 text-lg">Uploading File...</h3>
+          <p class="text-xs text-slate-400 mt-1">Directly pushing your asset to CDN servers</p>
+        </div>
+      </div>
+
+      <!-- Success Result State -->
+      <div id="resultContainer" class="hidden py-4 space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-check"></i>
+            </div>
+            <span class="text-sm font-semibold text-slate-200">Upload Complete!</span>
+          </div>
+          <button id="resetBtn" class="text-xs text-slate-400 hover:text-white transition-colors">
+            Upload another
+          </button>
+        </div>
+
+        <!-- Preview -->
+        <div id="previewBox" class="w-full h-48 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden">
+          <img id="imagePreview" class="w-full h-full object-contain hidden" alt="Uploaded Preview" />
+          <div id="genericPreview" class="text-center text-slate-500 hidden">
+            <i class="fa-solid fa-file-lines text-4xl mb-2"></i>
+            <p class="text-xs">File uploaded successfully</p>
+          </div>
+        </div>
+
+        <!-- Copy URL Input -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Public Asset URL</label>
+          <div class="flex gap-2">
+            <input type="text" id="urlOutput" readonly class="w-full bg-slate-900 border border-slate-800 text-slate-200 text-sm rounded-xl px-4 py-3 focus:outline-none focus:border-brand-500 transition-colors selection:bg-brand-500/30" />
+            <button id="copyBtn" class="bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold px-5 py-3 rounded-xl transition-all duration-200 flex items-center gap-2 active:scale-95 whitespace-nowrap cursor-pointer">
+              <i class="fa-regular fa-copy"></i>
+              <span>Copy</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full max-w-6xl mx-auto px-6 py-6 text-center text-xs text-slate-600">
+    CloudDrop Engine &bull; Powered by Cloudinary Asset Management of (VES INC)
+  </footer>
+
+  <script>
+    // ==========================================
+    // CONFIGURATION (Your Credentials)
+    // ==========================================
+    const CLOUD_NAME = "avdbvnd5";       
+    const UPLOAD_PRESET = "oxezkeuo"; 
+
+    // Elements
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadContainer = document.getElementById('uploadContainer');
+    const progressContainer = document.getElementById('progressContainer');
+    const resultContainer = document.getElementById('resultContainer');
+    const urlOutput = document.getElementById('urlOutput');
+    const imagePreview = document.getElementById('imagePreview');
+    const genericPreview = document.getElementById('genericPreview');
+    const copyBtn = document.getElementById('copyBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // Drag & Drop Interactions
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.add('border-brand-500', 'bg-slate-900/80');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('border-brand-500', 'bg-slate-900/80');
+      }, false);
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length) uploadFile(files[0]);
+    });
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) uploadFile(fileInput.files[0]);
+    });
+
+    // Cloudinary Upload Logic
+    async function uploadFile(file) {
+      uploadContainer.classList.add('hidden');
+      progressContainer.classList.remove('hidden');
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', UPLOAD_PRESET);
+
+      try {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/auto/upload`, {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) throw new Error('Upload failed');
+
+        const data = await response.json();
+        
+        // ------------------------------------------------------------------
+        // DOMAIN CUSTOMIZATION: 
+        // ඔයාට ඕන නම් මෙතනින් Cloudinary link එක වෙනුවට ඔයාගේ Domain එක පෙන්වන්න පුළුවන්.
+        // උදාහරණයක් ලෙස: window.location.origin පාවිච්චි කළොත් ඔබේ වෙබ් අඩවියේ 
+        // ඩොමේන් එකට යටතේ පෙන්වයි. (නැතහොත් දත්ත ගබඩා වී ඇති ඩිජිටල් ਲින්ක් එක)
+        // ------------------------------------------------------------------
+        let finalUrl = data.secure_url; 
+        
+        // උදාහරණයක් ලෙස ඔබේ ඩොමේන් එකෙන් ලින්ක් එක හැදීමට අවශ්‍ය නම්:
+        // finalUrl = `${window.location.origin}/file?id=${data.public_id}`;
+
+        showResult(finalUrl, file.type);
+      } catch (error) {
+        alert("Upload failed! Make sure your Upload Preset 'oxezkeuo' is set to Unsigned in Cloudinary settings.");
+        uploadContainer.classList.remove('hidden');
+        progressContainer.classList.add('hidden');
+      }
+    }
+
+    // Display Upload Result
+    function showResult(url, fileType) {
+      progressContainer.classList.add('hidden');
+      resultContainer.classList.remove('hidden');
+      urlOutput.value = url;
+
+      if (fileType.startsWith('image/')) {
+        imagePreview.src = url;
+        imagePreview.classList.remove('hidden');
+        genericPreview.classList.add('hidden');
+      } else {
+        imagePreview.classList.add('hidden');
+        genericPreview.classList.remove('hidden');
+      }
+    }
+
+    // Fixed Copy Button functionality (Modern & Safe Clipboard API)
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(urlOutput.value);
+        
+        const originalHTML = copyBtn.innerHTML;
+        copyBtn.innerHTML = `<i class="fa-solid fa-check"></i><span>Copied!</span>`;
+        copyBtn.classList.replace('bg-brand-600', 'bg-emerald-600');
+        
+        setTimeout(() => {
+          copyBtn.innerHTML = originalHTML;
+          copyBtn.classList.replace('bg-emerald-600', 'bg-brand-600');
+        }, 2000);
+      } catch (err) {
+        // Fallback method if browser blocks clipboard API
+        urlOutput.select();
+        document.execCommand('copy');
+        alert("Link copied to clipboard!");
+      }
+    });
+
+    // Reset View
+    resetBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      resultContainer.classList.add('hidden');
+      uploadContainer.classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
