@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FB Video Downloader - Premium Utility</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            scroll-behavior: smooth;
+        }
+        .glow-card:hover {
+            box-shadow: 0 0 35px -5px rgba(59, 130, 246, 0.25);
+        }
+        .bg-mesh {
+            background-image: 
+                radial-gradient(at 10% 10%, rgba(37, 99, 235, 0.15) 0px, transparent 50%),
+                radial-gradient(at 90% 90%, rgba(220, 38, 38, 0.12) 0px, transparent 50%);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-mesh selection:bg-blue-600 selection:text-white">
+
+    <!-- Header Navbar -->
+    <header class="w-full border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-600/30">
+                    <i class="fa-brands fa-facebook-f text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">FB Downloader</h1>
+                    <p class="text-xs text-slate-400 font-medium">Fast & Free Video Saver</p>
+                </div>
+            </div>
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold">
+                <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span> Ultra Fast
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-4xl mx-auto px-6 py-12 w-full">
+        
+        <!-- Hero Section -->
+        <div class="text-center max-w-2xl mx-auto mb-10">
+            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-wide uppercase mb-4">
+                <i class="fa-solid fa-bolt"></i> HD & SD Downloads
+            </span>
+            <h2 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                Download Facebook Videos in <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-indigo-400">High Quality</span>
+            </h2>
+            <p class="text-slate-400 text-sm md:text-base mt-4 font-normal">
+                Paste any Facebook reel, watch video, or public clip link below to download directly to your device.
+            </p>
+        </div>
+
+        <!-- Search Input Box -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-3 md:p-4 shadow-2xl backdrop-blur-md mb-10">
+            <form id="downloadForm" class="flex flex-col md:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                        <i class="fa-solid fa-link text-lg"></i>
+                    </div>
+                    <input 
+                        type="url" 
+                        id="fbUrl" 
+                        placeholder="Paste Facebook video URL here..." 
+                        class="w-full pl-11 pr-16 py-4 rounded-2xl bg-slate-950/60 border border-slate-800 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all"
+                        required
+                    />
+                    <button 
+                        type="button" 
+                        onclick="pasteClipboard()" 
+                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                        title="Paste from clipboard">
+                        PASTE
+                    </button>
+                </div>
+                <button 
+                    type="submit" 
+                    id="submitBtn"
+                    class="px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-sm shadow-lg shadow-blue-600/25 transition-all flex items-center justify-center gap-2 shrink-0">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Fetch Video</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="hidden text-center py-12">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-500 mb-4 animate-bounce">
+                <i class="fa-solid fa-spinner fa-spin text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white">Fetching Video Details...</h3>
+            <p class="text-slate-400 text-sm mt-1">Please wait a moment while we process your video link.</p>
+        </div>
+
+        <!-- Error Alert -->
+        <div id="errorMsg" class="hidden bg-red-500/10 border border-red-500/30 text-red-400 p-5 rounded-2xl mb-8 text-center text-sm">
+            <i class="fa-solid fa-triangle-exclamation text-xl mb-2"></i>
+            <p id="errorText" class="font-semibold">Unable to process the URL.</p>
+        </div>
+
+        <!-- Video Result Card -->
+        <div id="resultCard" class="hidden glow-card bg-slate-900/60 border border-slate-800 rounded-3xl p-6 md:p-8 backdrop-blur-md transition-all duration-300">
+            <div class="flex flex-col md:flex-row gap-6 items-center">
+                
+                <!-- Thumbnail Preview -->
+                <div class="relative w-full md:w-72 h-48 md:h-52 rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shrink-0">
+                    <img id="thumbImg" src="" alt="Thumbnail" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                    <span class="absolute bottom-3 left-3 bg-blue-600/90 text-white text-xs font-bold px-2.5 py-1 rounded-lg backdrop-blur-sm uppercase">
+                        Ready
+                    </span>
+                </div>
+
+                <!-- Video Details & Actions -->
+                <div class="flex-grow flex flex-col justify-between w-full">
+                    <div>
+                        <span class="text-xs font-bold text-blue-400 uppercase tracking-wider">Ready to Download</span>
+                        <h3 id="videoTitle" class="text-xl font-bold text-white mt-1 mb-2 line-clamp-2">Facebook Video</h3>
+                        <p class="text-slate-400 text-xs leading-relaxed mb-4">
+                            Choose your preferred quality from the options below to start downloading.
+                        </p>
+                    </div>
+
+                    <!-- Dynamic Download Buttons Container -->
+                    <div id="downloadButtons" class="flex flex-col gap-2.5">
+                        <!-- Dynamic Buttons Inserted via JavaScript -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-slate-800 text-white border border-slate-700 px-5 py-3 rounded-2xl shadow-2xl opacity-0 translate-y-8 transition-all duration-300 pointer-events-none flex items-center gap-3 text-sm font-medium z-50">
+        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastText">Action completed successfully!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-8 mt-12">
+        <div class="max-w-6xl mx-auto px-6 text-center">
+            <p class="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                Developed by Isira Induwara (VES INC)
+            </p>
+            <p class="text-xs text-slate-600 mt-2">© 2026 VES Utilities. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Script Logic -->
+    <script>
+        const API_KEY = "supun-psvotb3j6cn8lv4lb3oniwc5";
+
+        async function pasteClipboard() {
+            try {
+                const text = await navigator.clipboard.readText();
+                document.getElementById('fbUrl').value = text;
+            } catch (err) {
+                showToast("Failed to read clipboard!");
+            }
+        }
+
+        document.getElementById('downloadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            downloadVideo();
+        });
+
+        async function downloadVideo() {
+            const urlInput = document.getElementById('fbUrl').value.trim();
+            const loading = document.getElementById('loading');
+            const errorMsg = document.getElementById('errorMsg');
+            const resultCard = document.getElementById('resultCard');
+            const thumbImg = document.getElementById('thumbImg');
+            const videoTitle = document.getElementById('videoTitle');
+            const downloadButtons = document.getElementById('downloadButtons');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Reset UI
+            errorMsg.classList.add('hidden');
+            resultCard.classList.add('hidden');
+            downloadButtons.innerHTML = '';
+
+            if (!urlInput) {
+                showError('කරුණාකර වලංගු Facebook Link එකක් ඇතුළත් කරන්න.');
+                return;
+            }
+
+            loading.classList.remove('hidden');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50');
+
+            try {
+                const apiUrl = `https://supunofc.site/api/download/facebook/dl?url=${encodeURIComponent(urlInput)}&apikey=${API_KEY}`;
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.success && data.result && data.result.medias && data.result.medias.length > 0) {
+                    thumbImg.src = data.result.thumbnail;
+                    videoTitle.textContent = data.result.title || "Facebook Video";
+
+                    data.result.medias.forEach(media => {
+                        const qualityName = media.quality ? media.quality.toUpperCase() : 'SD';
+                        const sizeText = media.formattedSize ? `(${media.formattedSize})` : '';
+
+                        const btn = document.createElement('a');
+                        btn.href = media.url;
+                        btn.target = "_blank";
+                        btn.rel = "noopener noreferrer";
+
+                        if (qualityName === 'HD') {
+                            btn.className = "flex items-center justify-between px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-sm shadow-lg shadow-blue-600/20 transition-all";
+                        } else {
+                            btn.className = "flex items-center justify-between px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-700/60 transition-all";
+                        }
+
+                        btn.innerHTML = `
+                            <span class="flex items-center gap-2">
+                                <i class="fa-solid fa-circle-down"></i> Download ${qualityName}
+                            </span>
+                            <span class="text-xs opacity-80">${sizeText}</span>
+                        `;
+
+                        downloadButtons.appendChild(btn);
+                    });
+
+                    resultCard.classList.remove('hidden');
+                } else {
+                    showError('Video එක සොයා ගැනීමට නොහැකි විය. Link එක නිවැරදි දැයි පරීක්ෂා කරන්න.');
+                }
+            } catch (err) {
+                showError('saver එක සමඟ සම්බන්ධ වීමේ දෝෂයක් සිදුවිය. නැවත උත්සාහ කරන්න.');
+            } finally {
+                loading.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50');
+            }
+        }
+
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMsg');
+            document.getElementById('errorText').textContent = message;
+            errorMsg.classList.remove('hidden');
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastText').innerText = msg;
+            toast.classList.remove('opacity-0', 'translate-y-8', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-8', 'pointer-events-none');
+                toast.classList.remove('opacity-100', 'translate-y-0');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
