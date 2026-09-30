@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VES Weather Pro | Global Edition</title>
+  
+  <!-- Google Fonts & FontAwesome -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #f3f4f6;
+      transition: background 0.8s ease;
+      min-height: 100vh;
+    }
+    .bg-theme-default { background-color: #0b0f19; background-image: radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.12) 0px, transparent 50%); }
+    .bg-theme-clear { background-color: #0f172a; background-image: radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.2) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.15) 0px, transparent 50%); }
+    .bg-theme-rain { background-color: #020617; background-image: radial-gradient(at 0% 0%, rgba(51, 65, 85, 0.4) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(30, 58, 138, 0.3) 0px, transparent 50%); }
+    .bg-theme-clouds { background-color: #0f172a; background-image: radial-gradient(at 0% 0%, rgba(148, 163, 184, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(71, 85, 105, 0.15) 0px, transparent 50%); }
+
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-input {
+      background: rgba(2, 6, 23, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .glass-input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 20px -3px rgba(59, 130, 246, 0.3);
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-theme-default selection:bg-blue-600 selection:text-white flex flex-col">
+
+  <!-- Header Navbar -->
+  <header class="w-full border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-blue-600/30">
+          <i class="fa-solid fa-earth-americas text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-white">VES Global</h1>
+          <p class="text-xs text-slate-400 font-medium">Worldwide Weather Intelligence</p>
+        </div>
+      </div>
+      
+      <!-- Top Controls -->
+      <div class="flex items-center gap-3">
+        <button id="geoBtn" class="px-4 py-2 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 text-sm font-semibold hover:bg-blue-500/20 transition">
+          <i class="fa-solid fa-location-crosshairs mr-1"></i> Locate Me
+        </button>
+        <select id="unitToggle" class="bg-slate-800 text-white text-sm font-semibold py-2 px-3 rounded-xl border border-slate-700 outline-none cursor-pointer">
+          <option value="metric">°C, m/s</option>
+          <option value="imperial">°F, mph</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-grow max-w-4xl mx-auto px-6 py-10 w-full flex flex-col items-center">
+    
+    <!-- Hero Section -->
+    <div class="text-center max-w-2xl mx-auto mb-8">
+      <h2 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+        Global Weather <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400">Forecast</span>
+      </h2>
+      <p class="text-slate-400 text-sm md:text-base mt-3 font-normal">
+        Type any global city/district name or pick a featured region below.
+      </p>
+    </div>
+
+    <!-- Quick Global Selectors -->
+    <div class="w-full max-w-lg grid grid-cols-2 gap-3 mb-4">
+      <div>
+        <label class="text-xs text-slate-400 font-semibold mb-1 block">Select Country</label>
+        <select id="countrySelect" class="w-full bg-slate-900 border border-slate-800 text-white text-xs font-semibold py-3 px-3 rounded-xl border border-slate-700 outline-none cursor-pointer">
+          <option value="">-- Choose Country --</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs text-slate-400 font-semibold mb-1 block">Select District/City</label>
+        <select id="citySelect" disabled class="w-full bg-slate-900 border border-slate-800 text-white text-xs font-semibold py-3 px-3 rounded-xl border border-slate-700 outline-none cursor-pointer disabled:opacity-50">
+          <option value="">-- Select City --</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Live Search Section -->
+    <div class="w-full max-w-lg relative mb-6">
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+        <input 
+          type="text" 
+          id="searchBox" 
+          placeholder="Search any world city (e.g. Tokyo, London, Sydney)..." 
+          autocomplete="off"
+          class="w-full pl-11 pr-4 py-4 rounded-2xl glass-input text-white placeholder-slate-500 text-base focus:outline-none transition-all"
+        />
+      </div>
+      <!-- Auto-complete Dropdown -->
+      <div id="suggestions" class="absolute left-0 right-0 mt-2 bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl z-20 hidden"></div>
+    </div>
+
+    <!-- Recent Searches -->
+    <div id="recentContainer" class="w-full max-w-lg mb-8 flex flex-wrap gap-2 justify-center hidden">
+      <span class="text-xs text-slate-500 w-full text-center mb-1">Recent Searches</span>
+      <div id="recentTags" class="flex gap-2 flex-wrap justify-center"></div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="hidden my-10 flex flex-col items-center">
+      <i class="fa-solid fa-circle-notch fa-spin text-4xl text-blue-500 mb-3"></i>
+      <span class="text-slate-400 text-sm font-semibold animate-pulse">Fetching Global Satellite Data...</span>
+    </div>
+
+    <!-- Weather Output Card -->
+    <div id="weatherArea" class="w-full max-w-2xl hidden flex-col gap-6">
+      <div class="glass-card rounded-3xl p-6 md:p-8 shadow-2xl w-full">
+        <div class="flex flex-col md:flex-row justify-between items-center border-b border-slate-800/80 pb-6 mb-6 gap-6 md:gap-0">
+          <div class="text-center md:text-left">
+            <span class="text-xs font-bold text-blue-400 uppercase tracking-widest inline-block mb-1"><i class="fa-solid fa-earth-asia"></i> <span id="countryTag">Location</span></span>
+            <h3 id="locationName" class="text-3xl font-extrabold text-white">--</h3>
+            <p id="weatherDesc" class="text-sm text-slate-400 capitalize mt-1">--</p>
+          </div>
+          
+          <div class="flex items-center">
+            <img id="weatherIcon" src="" alt="Weather Status" class="w-24 h-24 filter drop-shadow-xl" />
+            <div class="ml-2">
+              <span id="temp" class="text-5xl font-black text-white tracking-tighter">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-slate-950/50 p-4 rounded-2xl border border-slate-800/50 flex flex-col items-center text-center">
+            <i class="fa-solid fa-temperature-three-quarters text-blue-400 mb-2 text-lg"></i>
+            <span class="text-xs text-slate-400 font-medium mb-1">Feels Like</span>
+            <span id="feelsLike" class="text-lg font-bold text-white">--</span>
+          </div>
+          <div class="bg-slate-950/50 p-4 rounded-2xl border border-slate-800/50 flex flex-col items-center text-center">
+            <i class="fa-solid fa-droplet text-blue-400 mb-2 text-lg"></i>
+            <span class="text-xs text-slate-400 font-medium mb-1">Humidity</span>
+            <span id="humidity" class="text-lg font-bold text-white">--</span>
+          </div>
+          <div class="bg-slate-950/50 p-4 rounded-2xl border border-slate-800/50 flex flex-col items-center text-center">
+            <i class="fa-solid fa-wind text-blue-400 mb-2 text-lg"></i>
+            <span class="text-xs text-slate-400 font-medium mb-1">Wind</span>
+            <span id="windSpeed" class="text-lg font-bold text-white">--</span>
+          </div>
+          <div class="bg-slate-950/50 p-4 rounded-2xl border border-slate-800/50 flex flex-col items-center text-center">
+            <i class="fa-solid fa-lungs text-blue-400 mb-2 text-lg"></i>
+            <span class="text-xs text-slate-400 font-medium mb-1">Air Quality</span>
+            <span id="aqiStatus" class="text-lg font-bold text-white">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Forecast Section -->
+      <div class="glass-card rounded-3xl p-6 shadow-xl w-full">
+        <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4"><i class="fa-regular fa-clock text-blue-400 mr-2"></i>Upcoming Forecast</h4>
+        <div id="forecastContainer" class="flex gap-4 overflow-x-auto pb-4 no-scrollbar"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="w-full border-t border-slate-800/80 bg-slate-950/80 backdrop-blur-md py-6 mt-auto">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+      <p class="text-xs font-medium text-slate-500">
+        Engineered by <a href="https://induwaraya.netlify.app" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 font-bold">Isira Induwara</a> &copy; <span id="currentYear"></span>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    const apiKey = '2d61a72574c11c4f36173b627f8cb177';
+    let currentUnit = 'metric';
+    let lastSearchedLat = null, lastSearchedLon = null, lastSearchedName = null, lastCountry = null;
+
+const globalDataset = [
+  // --- South Asia ---
+  { country: "Sri Lanka", flag: "🇱🇰", cities: ["Colombo", "Gampaha", "Kalutara", "Kandy", "Matale", "Nuwara Eliya", "Galle", "Matara", "Hambantota", "Jaffna", "Kilinochchi", "Mannar", "Vavuniya", "Mullaitivu", "Batticaloa", "Ampara", "Trincomalee", "Kurunegala", "Puttalam", "Anuradhapura", "Polonnaruwa", "Badulla", "Monaragala", "Ratnapura", "Kegalle"] },
+  { country: "India", flag: "🇮🇳", cities: ["Mumbai", "Delhi", "Bangalore", "Chennai", "Kolkata", "Hyderabad", "Ahmedabad", "Pune", "Jaipur", "Lucknow"] },
+  { country: "Pakistan", flag: "🇵🇰", cities: ["Karachi", "Lahore", "Faisalabad", "Rawalpindi", "Islamabad", "Multan", "Peshawar", "Quetta", "Sialkot", "Gujranwala"] },
+  { country: "Bangladesh", flag: "🇧🇩", cities: ["Dhaka", "Chittagong", "Khulna", "Rajshahi", "Sylhet", "Bogra", "Comilla", "Barisal", "Rangpur", "Mymensingh"] },
+  { country: "Nepal", flag: "🇳🇵", cities: ["Kathmandu", "Pokhara", "Lalitpur", "Bharatpur", "Biratnagar", "Birgunj", "Dharan", "Hetauda", "Butwal", "Janakpur"] },
+  { country: "Maldives", flag: "🇲🇻", cities: ["Male", "Addu City", "Fuvahmulah", "Kulhudhuffushi", "Thinadhoo", "Naifaru", "Dhidhdhoo", "Gan", "Hithadhoo", "Hulhumale"] },
+  { country: "Bhutan", flag: "🇧🇹", cities: ["Thimphu", "Phuntsholing", "Punakha", "Paro", "Gelephu", "Wangdue Phodrang", "Samdrup Jongkhar", "Jakar", "Trashigang", "Trongsa"] },
+  { country: "Afghanistan", flag: "🇦🇫", cities: ["Kabul", "Kandahar", "Herat", "Mazar-i-Sharif", "Jalalabad", "Kunduz", "Ghazni", "Khost", "Balkh", "Taloqan"] },
+
+  // --- East & Southeast Asia ---
+  { country: "Japan", flag: "🇯🇵", cities: ["Tokyo", "Osaka", "Kyoto", "Yokohama", "Sapporo", "Fukuoka", "Nagoya", "Kobe", "Hiroshima", "Sendai"] },
+  { country: "China", flag: "🇨🇳", cities: ["Beijing", "Shanghai", "Shenzhen", "Guangzhou", "Chengdu", "Wuhan", "Hangzhou", "Xi'an", "Chongqing", "Nanjing"] },
+  { country: "South Korea", flag: "🇰🇷", cities: ["Seoul", "Busan", "Incheon", "Daegu", "Daejeon", "Gwangju", "Suwon", "Ulsan", "Changwon", "Jeju"] },
+  { country: "North Korea", flag: "🇰🇵", cities: ["Pyongyang", "Hamhung", "Chongjin", "Nampo", "Wonsan", "Sinuiju", "Tanchon", "Kaechon", "Kaesong", "Sariwon"] },
+  { country: "Taiwan", flag: "🇹🇼", cities: ["Taipei", "Kaohsiung", "Taichung", "Tainan", "Taoyuan", "Hsinchu", "Keelung", "Chiayi", "Changhua", "Pingtung"] },
+  { country: "Singapore", flag: "🇸🇬", cities: ["Singapore", "Bedok", "Jurong West", "Tampines", "Woodlands", "Hougang", "Yishun", "Choa Chu Kang", "Sengkang", "Ang Mo Kio"] },
+  { country: "Malaysia", flag: "🇲🇾", cities: ["Kuala Lumpur", "George Town", "Johor Bahru", "Ipoh", "Shah Alam", "Petaling Jaya", "Kota Kinabalu", "Kuching", "Malacca", "Kuantan"] },
+  { country: "Thailand", flag: "🇹🇭", cities: ["Bangkok", "Chiang Mai", "Phuket", "Pattaya", "Hat Yai", "Nakhon Ratchasima", "Udon Thani", "Surat Thani", "Nonthaburi", "Khon Kaen"] },
+  { country: "Vietnam", flag: "🇻🇳", cities: ["Ho Chi Minh City", "Hanoi", "Da Nang", "Haiphong", "Can Tho", "Nha Trang", "Hue", "Vung Tau", "Da Lat", "Quy Nhon"] },
+  { country: "Indonesia", flag: "🇮🇩", cities: ["Jakarta", "Surabaya", "Bandung", "Medan", "Bekasi", "Depok", "Tangerang", "Palembang", "Semarang", "Makassar"] },
+  { country: "Philippines", flag: "🇵🇭", cities: ["Manila", "Quezon City", "Davao City", "Cebu City", "Zamboanga", "Taguig", "Pasig", "Cagayan de Oro", "Parañaque", "Bacolod"] },
+  { country: "Myanmar", flag: "🇲🇲", cities: ["Yangon", "Mandalay", "Naypyidaw", "Bago", "Mawlamyine", "Taunggyi", "Sittwe", "Pyin Oo Lwin", "Monywa", "Pathein"] },
+  { country: "Cambodia", flag: "🇰🇭", cities: ["Phnom Penh", "Siem Reap", "Battambang", "Sihanoukville", "Kampong Cham", "Poipet", "Kampot", "Ta Khmau", "Pursat", "Kratie"] },
+  { country: "Laos", flag: "🇱🇦", cities: ["Vientiane", "Luang Prabang", "Pakse", "Savannakhet", "Sam Neua", "Thakhek", "Phonsavan", "Muang Xay", "Vang Vieng", "Attapeu"] },
+  { country: "Mongolia", flag: "🇲🇳", cities: ["Ulaanbaatar", "Erdenet", "Darkhan", "Choibalsan", "Moron", "Olgii", "Khovd", "Tsetserleg", "Bayankhongor", "Ulaangom"] },
+  { country: "Brunei", flag: "🇧🇳", cities: ["Bandar Seri Begawan", "Kuala Belait", "Seria", "Tutong", "Bangar", "Jerudong", "Kampong Ayer", "Muara", "Lumut", "Badas"] },
+  { country: "East Timor", flag: "🇹🇱", cities: ["Dili", "Baucau", "Maliana", "Suai", "Lospalos", "Same", "Liquica", "Ermera", "Viqueque", "Ainaro"] },
+
+  // --- Middle East & Central Asia ---
+  { country: "United Arab Emirates", flag: "🇦🇪", cities: ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Ras Al Khaimah", "Fujairah", "Al Ain", "Umm Al Quwain", "Khor Fakkan", "Kalba"] },
+  { country: "Saudi Arabia", flag: "🇸🇦", cities: ["Riyadh", "Jeddah", "Mecca", "Medina", "Dammam", "Khobar", "Tabuk", "Buraidah", "Abha", "Jizan"] },
+  { country: "Qatar", flag: "🇶🇦", cities: ["Doha", "Al Rayyan", "Al Wakrah", "Al Khor", "Umm Salal", "Dukhan", "Mesaieed", "Madinat ash Shamal", "Lusail", "Al Daayen"] },
+  { country: "Kuwait", flag: "🇰🇼", cities: ["Kuwait City", "Hawalli", "Salmiya", "Sabah Al-Salem", "Al Ahmadi", "Al Farwaniyah", "Fahaheel", "Jahra", "Mangaf", "Abu Halifa"] },
+  { country: "Oman", flag: "🇴🇲", cities: ["Muscat", "Salalah", "Sohar", "Nizwa", "Sur", "Seeb", "Ibri", "Barka", "Rustaq", "Buraimi"] },
+  { country: "Bahrain", flag: "🇧🇭", cities: ["Manama", "Riffa", "Muharraq", "Hamad Town", "A'ali", "Isa Town", "Jidhafs", "Budaia", "Sitra", "Zallaq"] },
+  { country: "Israel", flag: "🇮🇱", cities: ["Jerusalem", "Tel Aviv", "Haifa", "Rishon LeZion", "Petah Tikva", "Ashdod", "Netanya", "Beersheba", "Bnei Brak", "Holon"] },
+  { country: "Palestine", flag: "🇵🇸", cities: ["Gaza City", "Ramallah", "Hebron", "Nablus", "Khan Yunis", "Jenin", "Bethlehem", "Rafah", "Tulkarm", "Jericho"] },
+  { country: "Turkey", flag: "🇹🇷", cities: ["Istanbul", "Ankara", "Izmir", "Bursa", "Antalya", "Adana", "Gaziantep", "Konya", "Kayseri", "Mersin"] },
+  { country: "Iran", flag: "🇮🇷", cities: ["Tehran", "Mashhad", "Isfahan", "Karaj", "Shiraz", "Tabriz", "Qom", "Ahvaz", "Kermanshah", "Urmia"] },
+  { country: "Iraq", flag: "🇮🇶", cities: ["Baghdad", "Basra", "Erbil", "Mosul", "Sulaymaniyah", "Najaf", "Karbala", "Kirkuk", "Hillah", "Nasiriyah"] },
+  { country: "Jordan", flag: "🇯🇴", cities: ["Amman", "Zarqa", "Irbid", "Russeifa", "Aqaba", "Madaba", "Salt", "Ramtha", "Jerash", "Mafraq"] },
+  { country: "Lebanon", flag: "🇱🇧", cities: ["Beirut", "Tripoli", "Sidon", "Tyre", "Jounieh", "Zahle", "Byblos", "Baalbek", "Aley", "Nabatieh"] },
+  { country: "Syria", flag: "🇸🇾", cities: ["Damascus", "Aleppo", "Homs", "Latakia", "Hama", "Raqqa", "Deir ez-Zor", "Hasakah", "Tartus", "Daraa"] },
+  { country: "Yemen", flag: "🇾🇪", cities: ["Sana'a", "Aden", "Taiz", "Al Hudaydah", "Ibb", "Mukalla", "Dhamar", "Amran", "Sayyan", "Zinjibar"] },
+  { country: "Kazakhstan", flag: "🇰🇿", cities: ["Almaty", "Astana", "Shymkent", "Karaganda", "Aktobe", "Taras", "Pavlodar", "Ust-Kamenogorsk", "Semey", "Atyrau"] },
+  { country: "Uzbekistan", flag: "🇺🇿", cities: ["Tashkent", "Samarkand", "Namangan", "Andijan", "Bukhara", "Nukus", "Fergana", "Karshi", "Kokand", "Margilan"] },
+  { country: "Turkmenistan", flag: "🇹🇲", cities: ["Ashgabat", "Türkmenabat", "Daşoguz", "Mary", "Balkanabat", "Bayramaly", "Türkmenbaşy", "Tejen", "Abadan", "Atamurat"] },
+  { country: "Kyrgyzstan", flag: "🇰🇬", cities: ["Bishkek", "Osh", "Jalal-Abad", "Karakol", "Tokmok", "Uzgen", "Balykchy", "Naryn", "Talas", "Isfana"] },
+  { country: "Tajikistan", flag: "🇹🇯", cities: ["Dushanbe", "Khujand", "Bokhtar", "Kulob", "Istaravshan", "Tursunzoda", "Konibodom", "Panjakent", "Khorog", "Yavan"] },
+
+  // --- Europe ---
+  { country: "United Kingdom", flag: "🇬🇧", cities: ["London", "Manchester", "Birmingham", "Glasgow", "Liverpool", "Edinburgh", "Bristol", "Leeds", "Belfast", "Cardiff"] },
+  { country: "Germany", flag: "🇩🇪", cities: ["Berlin", "Munich", "Frankfurt", "Hamburg", "Cologne", "Stuttgart", "Dusseldorf", "Dresden", "Leipzig", "Nuremberg"] },
+  { country: "France", flag: "🇫🇷", cities: ["Paris", "Marseille", "Lyon", "Toulouse", "Nice", "Nantes", "Strasbourg", "Bordeaux", "Lille", "Rennes"] },
+  { country: "Italy", flag: "🇮🇹", cities: ["Rome", "Milan", "Naples", "Turin", "Palermo", "Genoa", "Bologna", "Florence", "Bari", "Venice"] },
+  { country: "Spain", flag: "🇪🇸", cities: ["Madrid", "Barcelona", "Valencia", "Seville", "Zaragoza", "Malaga", "Murcia", "Palma", "Bilbao", "Alicante"] },
+  { country: "Portugal", flag: "🇵🇹", cities: ["Lisbon", "Porto", "Vila Nova de Gaia", "Amadora", "Braga", "Funchal", "Coimbra", "Setubal", "Almada", "Agualva-Cacem"] },
+  { country: "Russia", flag: "🇷🇺", cities: ["Moscow", "Saint Petersburg", "Novosibirsk", "Yekaterinburg", "Kazan", "Nizhny Novgorod", "Chelyabinsk", "Samara", "Omsk", "Rostov-on-Don"] },
+  { country: "Ukraine", flag: "🇺🇦", cities: ["Kyiv", "Kharkiv", "Odesa", "Dnipro", "Zaporizhzhia", "Lviv", "Kryvyi Rih", "Mykolaiv", "Vinnytsia", "Poltava"] },
+  { country: "Netherlands", flag: "🇳🇱", cities: ["Amsterdam", "Rotterdam", "The Hague", "Utrecht", "Eindhoven", "Tilburg", "Groningen", "Almere", "Breda", "Nijmegen"] },
+  { country: "Belgium", flag: "🇧🇪", cities: ["Brussels", "Antwerp", "Ghent", "Charleroi", "Liege", "Bruges", "Namur", "Leuven", "Mons", "Aalst"] },
+  { country: "Switzerland", flag: "🇨🇭", cities: ["Zurich", "Geneva", "Basel", "Lausanne", "Bern", "Winterthur", "Lucerne", "St. Gallen", "Lugano", "Biel/Bienne"] },
+  { country: "Austria", flag: "🇦🇹", cities: ["Vienna", "Graz", "Linz", "Salzburg", "Innsbruck", "Klagenfurt", "Villach", "Wels", "Sankt Polten", "Dornbirn"] },
+  { country: "Sweden", flag: "🇸🇪", cities: ["Stockholm", "Gothenburg", "Malmo", "Uppsala", "Vasteras", "Orebro", "Linkoping", "Helsingborg", "Jonkoping", "Norrkoping"] },
+  { country: "Norway", flag: "🇳🇴", cities: ["Oslo", "Bergen", "Trondheim", "Stavanger", "Brumunddal", "Drammen", "Fredrikstad", "Kristiansand", "Tromso", "Tonsberg"] },
+  { country: "Denmark", flag: "🇩🇰", cities: ["Copenhagen", "Aarhus", "Odense", "Aalborg", "Esbjerg", "Randers", "Kolding", "Horsens", "Vejle", "Roskilde"] },
+  { country: "Finland", flag: "🇫🇮", cities: ["Helsinki", "Espoo", "Tampere", "Vantaa", "Oulu", "Turku", "Jyvaskyla", "Lahti", "Kuopio", "Pori"] },
+  { country: "Poland", flag: "🇵🇱", cities: ["Warsaw", "Krakow", "Wroclaw", "Lodz", "Poznan", "Gdansk", "Szczecin", "Bydgoszcz", "Lublin", "Katowice"] },
+  { country: "Greece", flag: "🇬🇷", cities: ["Athens", "Thessaloniki", "Patras", "Heraklion", "Larissa", "Volos", "Rhodes", "Ioannina", "Chania", "Chalcis"] },
+  { country: "Ireland", flag: "🇮🇪", cities: ["Dublin", "Cork", "Limerick", "Galway", "Waterford", "Drogheda", "Dundalk", "Sword", "Bray", "Navan"] },
+  { country: "Czech Republic", flag: "🇨🇿", cities: ["Prague", "Brno", "Ostrava", "Pilsen", "Liberec", "Olomouc", "Ceske Budejovice", "Hradec Kralove", "Usti nad Labem", "Pardubice"] },
+  { country: "Hungary", flag: "🇭🇺", cities: ["Budapest", "Debrecen", "Szeged", "Miskolc", "Pecs", "Gyor", "Nyiregyhaza", "Kecskemet", "Szekesfehervar", "Szombathely"] },
+  { country: "Romania", flag: "🇷🇴", cities: ["Bucharest", "Cluj-Napoca", "Timisoara", "Iasi", "Constanta", "Craiova", "Brasov", "Galati", "Ploiesti", "Oradea"] },
+  { country: "Bulgaria", flag: "🇧🇬", cities: ["Sofia", "Plovdiv", "Varna", "Burgas", "Ruse", "Stara Zagora", "Pleven", "Sliven", "Dobrich", "Shumen"] },
+  { country: "Croatia", flag: "🇭🇷", cities: ["Zagreb", "Split", "Rijeka", "Osijek", "Zadar", "Pula", "Slavonski Brod", "Karlovac", "Varazdin", "Sibenik"] },
+  { country: "Serbia", flag: "🇷🇸", cities: ["Belgrade", "Novi Sad", "Nis", "Kragujevac", "Subotica", "Zrenjanin", "Pancevo", "Cacak", "Krusevac", "Novi Pazar"] },
+  { country: "Slovakia", flag: "🇸🇰", cities: ["Bratislava", "Kosice", "Presov", "Zilina", "Banska Bystrica", "Nitra", "Trnava", "Martin", "Trencin", "Poprad"] },
+  { country: "Belarus", flag: "🇧🇾", cities: ["Minsk", "Gomel", "Mogilev", "Vitebsk", "Grodno", "Brest", "Bobruisk", "Baranovichi", "Borisov", "Pinsk"] },
+  { country: "Lithuania", flag: "🇱🇹", cities: ["Vilnius", "Kaunas", "Klaipeda", "Siauliai", "Panevezys", "Alytus", "Marijampole", "Mazeikiai", "Jonava", "Utena"] },
+  { country: "Latvia", flag: "🇱🇻", cities: ["Riga", "Daugavpils", "Liepaja", "Jelgava", "Jurmala", "Ventspils", "Rezekne", "Valmiera", "Jekabpils", "Ogre"] },
+  { country: "Estonia", flag: "🇪🇪", cities: ["Tallinn", "Tartu", "Narva", "Parnu", "Kohtla-Jarve", "Viljandi", "Rakvere", "Maardu", "Kuressaare", "Sillamae"] },
+  { country: "Slovenia", flag: "🇸🇮", cities: ["Ljubljana", "Maribor", "Celje", "Kranj", "Velenje", "Koper", "Novo Mesto", "Ptuj", "Trbovlje", "Kamnik"] },
+  { country: "Albania", flag: "🇦🇱", cities: ["Tirana", "Durres", "Vlore", "Shkoder", "Fier", "Korce", "Elbasan", "Berat", "Lushnje", "Gjirokaster"] },
+  { country: "North Macedonia", flag: "🇲🇰", cities: ["Skopje", "Bitola", "Kumanovo", "Prilep", "Tetovo", "Ohrid", "Veles", "Stip", "Gostivar", "Strumica"] },
+  { country: "Bosnia and Herzegovina", flag: "🇧🇦", cities: ["Sarajevo", "Banja Luka", "Tuzla", "Zenica", "Mostar", "Bijeljina", "Brcko", "Bihać", "Prijedor", "Trebinje"] },
+  { country: "Moldova", flag: "🇲🇩", cities: ["Chisinau", "Tiraspol", "Balti", "Bender", "Ribnita", "Cahul", "Ungheni", "Soroca", "Orhei", "Comrat"] },
+  { country: "Cyprus", flag: "🇨🇾", cities: ["Nicosia", "Limassol", "Larnaca", "Paphos", "Famagusta", "Kyrenia", "Protaras", "Morphou", "Aradippou", "Paralimni"] },
+  { country: "Iceland", flag: "🇮🇸", cities: ["Reykjavik", "Kopavogur", "Hafnarfjordur", "Akureyri", "Garðabaer", "Mosfellsbaer", "Keflavik", "Akranes", "Selfoss", "Vestmannaeyjar"] },
+  { country: "Luxembourg", flag: "🇱🇺", cities: ["Luxembourg City", "Esch-sur-Alzette", "Differdange", "Dudelange", "Ettelbruck", "Diekirch", "Wiltz", "Echternach", "Rumelange", "Grevenmacher"] },
+  { country: "Malta", flag: "🇲🇹", cities: ["Valletta", "Birkirkara", "Mosta", "Sliema", "Qormi", "Zabbar", "St. Paul's Bay", "Rabat", "Gzira", "Birzebbuga"] },
+  { country: "Montenegro", flag: "🇲🇪", cities: ["Podgorica", "Niksic", "Herceg Novi", "Pljevlja", "Budva", "Bar", "Bijelo Polje", "Cetinje", "Kotor", "Tivat"] },
+  { country: "Monaco", flag: "🇲🇨", cities: ["Monaco-Ville", "Monte Carlo", "La Condamine", "Fontvieille", "Moneghetti", "Larvotto", "Saint Roman", "La Colle", "Les Revoires", "Saint Michel"] },
+  { country: "Andorra", flag: "🇦🇩", cities: ["Andorra la Vella", "Escaldes-Engordany", "Encamp", "Sankt Julia de Loria", "La Massana", "Canillo", "Ordino", "Pas de la Casa", "Arinsal", "El Tarter"] },
+  { country: "Liechtenstein", flag: "🇱🇮", cities: ["Vaduz", "Schaan", "Triesen", "Balzers", "Eschen", "Mauren", "Triesenberg", "Ruggell", "Gamprin", "Schellenberg"] },
+  { country: "San Marino", flag: "🇸🇲", cities: ["City of San Marino", "Dogana", "Borgo Maggiore", "Serravalle", "Domagnano", "Fiorentino", "Faetano", "Acquaviva", "Montegiardino", "Chiesanuova"] },
+  { country: "Vatican City", flag: "🇻🇦", cities: ["Vatican City"] },
+
+  // --- North America ---
+  { country: "United States", flag: "🇺🇸", cities: ["New York", "Los Angeles", "Chicago", "Houston", "Phoenix", "Miami", "Dallas", "Seattle", "San Francisco", "Atlanta"] },
+  { country: "Canada", flag: "🇨🇦", cities: ["Toronto", "Vancouver", "Montreal", "Calgary", "Ottawa", "Edmonton", "Quebec City", "Winnipeg", "Halifax", "Victoria"] },
+  { country: "Mexico", flag: "🇲🇽", cities: ["Mexico City", "Guadalajara", "Monterrey", "Puebla", "Tijuana", "Leon", "Juarez", "Zapopan", "Merida", "Cancun"] },
+  { country: "Guatemala", flag: "🇬🇹", cities: ["Guatemala City", "Mixco", "Villa Nueva", "Quetzaltenango", "Escuintla", "San Miguel Petapa", "Chinautla", "Chimaltenango", "San Juan Sacatepequez", "Retalhuleu"] },
+  { country: "Cuba", flag: "🇨🇺", cities: ["Havana", "Santiago de Cuba", "Camaguey", "Holguin", "Guantanamo", "Santa Clara", "Las Tunas", "Bayamo", "Cienfuegos", "Pinar del Rio"] },
+  { country: "Haiti", flag: "🇭🇹", cities: ["Port-au-Prince", "Carrefour", "Delmas", "Cap-Haitien", "Petion-Ville", "Gonaives", "Saint-Marc", "Les Cayes", "Verrettes", "Port-de-Paix"] },
+  { country: "Dominican Republic", flag: "🇩🇴", cities: ["Santo Domingo", "Santiago de los Caballeros", "Santo Domingo Este", "Santo Domingo Norte", "San Pedro de Macoris", "La Romana", "Bella Vista", "San Cristobal", "Puerto Plata", "Higuey"] },
+  { country: "Honduras", flag: "🇭🇳", cities: ["Tegucigalpa", "San Pedro Sula", "Choloma", "La Ceiba", "El Progreso", "Villanueva", "Comayagua", "Choluteca", "Juticalpa", "Danli"] },
+  { country: "El Salvador", flag: "🇸🇻", cities: ["San Salvador", "Soyapango", "Santa Ana", "San Miguel", "Mejicanos", "Santa Tecla", "Apopa", "Delgado", "Sonsonate", "San Marcos"] },
+  { country: "Nicaragua", flag: "🇳🇮", cities: ["Managua", "Leon", "Masaya", "Chinandega", "Matagalpa", "Esteli", "Granada", "Tipitapa", "Chichigalpa", "Juigalpa"] },
+  { country: "Costa Rica", flag: "🇨🇷", cities: ["San Jose", "Puerto Limon", "San Francisco", "Alajuela", "Liberia", "Paraiso", "Desamparados", "Puntarenas", "Cartago", "Curridabat"] },
+  { country: "Panama", flag: "🇵🇦", cities: ["Panama City", "San Miguelito", "Tocumen", "David", "Arraijan", "Colon", "Las Cumbres", "La Chorrera", "Pacora", "Santiago de Veraguas"] },
+  { country: "Jamaica", flag: "🇯🇲", cities: ["Kingston", "Portmore", "Spanish Town", "Montego Bay", "May Pen", "Mandeville", "Old Harbour", "Savanna-la-Mar", "Ocho Rios", "Linstead"] },
+  { country: "Trinidad and Tobago", flag: "🇹🇹", cities: ["Port of Spain", "Chaguanas", "San Fernando", "Arima", "Point Fortin", "Tunapuna", "Sangre Grande", "Paradise", "Peñal", "Scarborough"] },
+  { country: "Bahamas", flag: "🇧🇸", cities: ["Nassau", "Freeport", "West End", "Cooper's Town", "Marsh Harbour", "Freetown", "High Rock", "Andros Town", "Clarence Town", "Dunmore Town"] },
+  { country: "Barbados", flag: "🇧🇧", cities: ["Bridgetown", "Speightstown", "Oistins", "Holetown", "Bathsheba", "Six Cross Roads", "Greenwich Village", "Black Rock", "Crane", "Check Hall"] },
+
+  // --- South America ---
+  { country: "Brazil", flag: "🇧🇷", cities: ["Sao Paulo", "Rio de Janeiro", "Brasilia", "Salvador", "Fortaleza", "Belo Horizonte", "Manaus", "Curitiba", "Recife", "Porto Alegre"] },
+  { country: "Argentina", flag: "🇦🇷", cities: ["Buenos Aires", "Cordoba", "Rosario", "Mendoza", "Tucuman", "La Plata", "Mar del Plata", "Salta", "Santa Fe", "San Juan"] },
+  { country: "Colombia", flag: "🇨🇴", cities: ["Bogota", "Medellin", "Cali", "Barranquilla", "Cartagena", "Cukuta", "Soledad", "Ibaque", "Bucaramanga", "Soacha"] },
+  { country: "Peru", flag: "🇵🇪", cities: ["Lima", "Arequipa", "Trujillo", "Chiclayo", "Piura", "Iquitos", "Cusco", "Huancayo", "Chimbote", "Pucallpa"] },
+  { country: "Chile", flag: "🇨🇱", cities: ["Santiago", "Valparaiso", "Concepcion", "La Serena", "Antofagasta", "Temuco", "Rancagua", "Iquique", "Talca", "Puerto Montt"] },
+  { country: "Venezuela", flag: "🇻🇪", cities: ["Caracas", "Maracaibo", "Valencia", "Barquisimeto", "Maracay", "Ciudad Guayana", "San Cristobal", "Maturin", "Barcelona", "Merida"] },
+  { country: "Ecuador", flag: "🇪🇨", cities: ["Guayaquil", "Quito", "Cuenca", "Santo Domingo", "Machala", "Manta", "Portoviejo", "Ambato", "Riobamba", "Esmeraldas"] },
+  { country: "Bolivia", flag: "🇧🇴", cities: ["Santa Cruz de la Sierra", "El Alto", "La Paz", "Cochabamba", "Oruro", "Sucre", "Tarija", "Potosi", "Sacaba", "Quillacollo"] },
+  { country: "Paraguay", flag: "🇵🇾", cities: ["Asuncion", "Ciudad del Este", "San Lorenzo", "Luque", "Capiata", "Lambare", "Fernando de la Mora", "Limpio", "Nemby", "Encarnacion"] },
+  { country: "Uruguay", flag: "🇺🇾", cities: ["Montevideo", "Salto", "Ciudad de la Costa", "Paysandu", "Las Piedras", "Rivera", "Maldonado", "Tacuarembo", "Melo", "Mercedes"] },
+  { country: "Guyana", flag: "🇬🇾", cities: ["Georgetown", "Linden", "New Amsterdam", "Anna Regina", "Bartica", "Skeldon", "Rosignol", "Mahaica", "Parika", "Vreed en Hoop"] },
+  { country: "Suriname", flag: "🇸🇷", cities: ["Paramaribo", "Lelydorp", "Nieuw Nickerie", "Moengo", "Meerzorg", "Nieuw Amsterdam", "Marienburg", "Wageningen", "Albina", "Groningen"] },
+
+  // --- Australia & Oceania ---
+  { country: "Australia", flag: "🇦🇺", cities: ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide", "Gold Coast", "Canberra", "Hobart", "Darwin", "Cairns"] },
+  { country: "New Zealand", flag: "🇳🇿", cities: ["Auckland", "Wellington", "Christchurch", "Hamilton", "Tauranga", "Lower Hutt", "Dunedin", "Palmerston North", "Napier", "Nelson"] },
+  { country: "Fiji", flag: "🇫🇯", cities: ["Suva", "Nadi", "Lautoka", "Labasa", "Lami", "Nausori", "Sigatoka", "Savusavu", "Vatukoula", "Ba"] },
+  { country: "Papua New Guinea", flag: "🇵🇬", cities: ["Port Moresby", "Lae", "Arawa", "Mount Hagen", "Popondetta", "Madang", "Kokopo", "Mendi", "Kimbe", "Goroka"] },
+  { country: "Samoa", flag: "🇼🇸", cities: ["Apia", "Asau", "Mulifanua", "Afega", "Leulumoega", "Fagali'i", "Siusega", "Falelatai", "Lufilufi", "Solosolo"] },
+  { country: "Solomon Islands", flag: "🇸🇧", cities: ["Honiara", "Gizo", "Auki", "Noro", "Kirakira", "Buala", "Tulagi", "Lata", "Taro Island", "Munda"] },
+  { country: "Vanuatu", flag: "🇻🇺", cities: ["Port Vila", "Luganville", "Isangel", "Sola", "Lakatoro", "Port Olry", "Lenakel", "Norsup", "Longana", "Ringdove"] },
+  { country: "Tonga", flag: "🇹🇴", cities: ["Nuku'alofa", "Neiafu", "Haveluloto", "Vaini", "Pangai", "Ohonua", "Hihifo", "Tatakamotonga", "Kolonga", "Mu'a"] },
+  { country: "Kiribati", flag: "🇰🇮", cities: ["South Tarawa",, "Betio", "Bairiki", "Taburao", "Temwaiku", "Kiritimati", "Bonriki", "Buota", "Eita", "Ambo"] },
+  { country: "Federated States of Micronesia", flag: "🇫🇲", cities: ["Palikir", "Weno", "Kitti", "Tol", "Madolenihmw", "Kolonia", "Lelu", "Nett", "Tonoas", "Utwe"] },
+
+  // --- Africa ---
+  { country: "Egypt", flag: "🇪🇬", cities: ["Cairo", "Alexandria", "Giza", "Shubra El Kheima", "Port Said", "Suez", "Luxor", "Mansoura", "El Mahalla El Kubra", "Tanta"] },
+  { country: "South Africa", flag: "🇿🇦", cities: ["Johannesburg", "Cape Town", "Durban", "Pretoria", "Port Elizabeth", "Bloemfontein", "East London", "Nelspruit", "Polokwane", "Kimberley"] },
+  { country: "Nigeria", flag: "🇳🇬", cities: ["Lagos", "Kano", "Ibadan", "Kaduna", "Port Harcourt", "Benin City", "Maiduguri", "Zaria", "Aba", "Abuja"] },
+  { country: "Kenya", flag: "🇰🇪", cities: ["Nairobi", "Mombasa", "Kisumu", "Nakuru", "Ruiru", "Eldoret", "Kikuyu", "Thika", "Naivasha", "Karuri"] },
+  { country: "Ethiopia", flag: "🇪🇹", cities: ["Addis Ababa", "Gondar", "Mek'ele", "Adama", "Hawassa", "Bahir Dar", "Dire Dawa", "Dessie", "Jimma", "Jijiga"] },
+  { country: "Morocco", flag: "🇲🇦", cities: ["Casablanca", "Fes", "Tangier", "Marrakesh", "Sale", "Meknes", "Rabat", "Oujda", "Kenitra", "Agadir"] },
+  { country: "Algeria", flag: "🇩🇿", cities: ["Algiers", "Oran", "Constantine", "Annaba", "Blida", "Batna", "Djelfa", "Setif", "Sidi Bel Abbes", "Biskra"] },
+  { country: "Ghana", flag: "🇬🇭", cities: ["Accra", "Kumasi", "Tamale", "Sekondi-Takoradi", "Ashaiman", "Sunyani", "Cape Coast", "Obuasi", "Teshie", "Tema"] },
+  { country: "Tanzania", flag: "🇹🇿", cities: ["Dar es Salaam", "Mwanza", "Arusha", "Dodoma", "Mbeya", "Morogoro", "Tanga", "Kahama", "Tabora", "Zanzibar City"] },
+  { country: "Uganda", flag: "🇺🇬", cities: ["Kampala", "Nansana", "Kira", "Makindye", "Mbarara", "Mukono", "Gulu", "Lugazi", "Kasese", "Masaka"] },
+  { country: "Angola", flag: "🇦🇴", cities: ["Luanda", "Cabinda", "Huambo", "Lubango", "Kuito", "Malanje", "Lobito", "Benguela", "Uige", "Namibe"] },
+  { country: "Sudan", flag: "🇸🇩", cities: ["Khartoum", "Omdurman", "Khartoum North", "Nyala", "Port Sudan", "Kassala", "El Obeid", "Kosti", "Wad Madani", "El Fasher"] },
+  { country: "Zimbabwe", flag: "🇿🇼", cities: ["Harare", "Bulawayo", "Chitungwiza", "Mutare", "Epworth", "Gweru", "Kwekwe", "Kadoma", "Masvingo", "Chinhoyi"] },
+  { country: "Zambia", flag: "🇿🇲", cities: ["Lusaka", "Kitwe", "Ndola", "Kabwe", "Chingola", "Mufulira", "Livingstone", "Luanshya", "Kasama", "Chipata"] },
+  { country: "Senegal", flag: "🇸🇳", cities: ["Dakar", "Touba", "Thies", "Rufisque", "Kaolack", "M'Bour", "Ziguinchor", "Saint-Louis", "Diourbel", "Louga"] },
+  { country: "Cameroon", flag: "🇨🇲", cities: ["Douala", "Yaounde", "Bamenda", "Bafoussam", "Garoua", "Maroua", "Ngaoundere", "Kumba", "Nkongsamba", "Buea"] },
+  { country: "Ivory Coast", flag: "🇨🇮", cities: ["Abidjan", "Bouake", "Daloa", "Yamoussoukro", "San-Pedro", "Korhogo", "Man", "Divo", "Gagnoa", "Abengourou"] },
+  { country: "Tunisia", flag: "🇹🇳", cities: ["Tunis",, "Sfax", "Sousse", "Ettadhamen", "Kairouan", "Gabes", "Bizerte", "Ariana", "Gafsa", "Monastir"] },
+  { country: "Libya", flag: "🇱🇾", cities: ["Tripoli", "Benghazi", "Misrata", "Bayda", "Zawiya", "Zliten", "Tobruk", "Sabad", "Sirte", "Ajdabiya"] },
+  { country: "Madagascar", flag: "🇲🇬", cities: ["Antananarivo", "Toamasina", "Antsirabe", "Mahajanga", "Fianarantsoa", "Toliara", "Antsiranana", "Ambovombe", "Ambatondrazaka", "Manakara"] }
+];
+
+    const countrySelect = document.getElementById('countrySelect');
+    const citySelect = document.getElementById('citySelect');
+    const searchBox = document.getElementById('searchBox');
+    const suggestions = document.getElementById('suggestions');
+    const weatherArea = document.getElementById('weatherArea');
+    const loader = document.getElementById('loader');
+
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    // Populate Country Dropdown
+    globalDataset.forEach((data, index) => {
+      const opt = document.createElement('option');
+      opt.value = index;
+      opt.textContent = `${data.flag} ${data.country}`;
+      countrySelect.appendChild(opt);
+    });
+
+    countrySelect.addEventListener('change', (e) => {
+      const idx = e.target.value;
+      citySelect.innerHTML = '<option value="">-- Select City --</option>';
+      if (idx !== "") {
+        citySelect.disabled = false;
+        globalDataset[idx].cities.forEach(city => {
+          const opt = document.createElement('option');
+          opt.value = city;
+          opt.textContent = city;
+          citySelect.appendChild(opt);
+        });
+      } else {
+        citySelect.disabled = true;
+      }
+    });
+
+    citySelect.addEventListener('change', (e) => {
+      if (e.target.value) {
+        const countryObj = globalDataset[countrySelect.value];
+        searchGlobalCity(`${e.target.value}, ${countryObj.country}`);
+      }
+    });
+
+    // Dynamic Live Search via OpenWeather Geocoding API (Works for ANY city globally)
+    let debounceTimer;
+    searchBox.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      const query = searchBox.value.trim();
+      if (query.length < 2) return hideSuggestions();
+
+      debounceTimer = setTimeout(async () => {
+        try {
+          const res = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=5&appid=${apiKey}`);
+          const locations = await res.json();
+          
+          if (locations.length === 0) {
+            suggestions.innerHTML = '<div class="px-5 py-3 text-sm text-slate-400">No global location found</div>';
+          } else {
+            suggestions.innerHTML = locations.map(loc => 
+              `<div onclick="fetchWeatherData(${loc.lat}, ${loc.lon}, '${loc.name}', '${loc.country}')" class="px-5 py-3 text-sm font-semibold text-slate-300 hover:bg-blue-600/30 cursor-pointer border-b border-slate-800/50 last:border-0 flex justify-between">
+                <span>${loc.name} ${loc.state ? '('+loc.state+')' : ''}</span>
+                <span class="text-blue-400 font-bold">${loc.country}</span>
+              </div>`
+            ).join('');
+          }
+          suggestions.classList.remove('hidden');
+        } catch (e) { console.error(e); }
+      }, 300);
+    });
+
+    function hideSuggestions() {
+      suggestions.innerHTML = '';
+      suggestions.classList.add('hidden');
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!searchBox.contains(e.target) && !suggestions.contains(e.target)) hideSuggestions();
+    });
+
+    async function searchGlobalCity(cityName) {
+      try {
+        const res = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${cityName}&limit=1&appid=${apiKey}`);
+        const data = await res.json();
+        if (data.length > 0) {
+          fetchWeatherData(data[0].lat, data[0].lon, data[0].name, data[0].country);
+        } else {
+          alert('Location not found.');
+        }
+      } catch (err) { alert('Error searching location.'); }
+    }
+
+    // Auto-Location (GPS)
+    document.getElementById('geoBtn').addEventListener('click', () => {
+      if (navigator.geolocation) {
+        searchBox.value = "Locating...";
+        navigator.geolocation.getCurrentPosition(pos => {
+          const { latitude: lat, longitude: lon } = pos.coords;
+          fetch(`https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${apiKey}`)
+            .then(res => res.json())
+            .then(data => {
+              const name = data.length > 0 ? data[0].name : "Your Location";
+              const country = data.length > 0 ? data[0].country : "";
+              fetchWeatherData(lat, lon, name, country);
+            });
+        });
+      }
+    });
+
+    // Unit Switcher
+    document.getElementById('unitToggle').addEventListener('change', (e) => {
+      currentUnit = e.target.value;
+      if (lastSearchedLat) fetchWeatherData(lastSearchedLat, lastSearchedLon, lastSearchedName, lastCountry);
+    });
+
+    // Weather Fetch & AQI
+    async function fetchWeatherData(lat, lon, locationName, countryCode) {
+      lastSearchedLat = lat; lastSearchedLon = lon; lastSearchedName = locationName; lastCountry = countryCode;
+      searchBox.value = `${locationName}, ${countryCode}`;
+      hideSuggestions();
+      
+      weatherArea.classList.add('hidden');
+      loader.classList.remove('hidden');
+
+      const tempUnit = currentUnit === 'metric' ? '°C' : '°F';
+      const speedUnit = currentUnit === 'metric' ? 'm/s' : 'mph';
+
+      try {
+        const [wRes, aRes, fRes] = await Promise.all([
+          fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${currentUnit}`),
+          fetch(`https://api.openweathermap.org/data/2.5/air_pollution?lat=${lat}&lon=${lon}&appid=${apiKey}`),
+          fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=${currentUnit}`)
+        ]);
+
+        const weather = await wRes.json();
+        const aqi = await aRes.json();
+        const forecast = await fRes.json();
+
+        document.getElementById('locationName').textContent = `${locationName}, ${countryCode}`;
+        document.getElementById('countryTag').textContent = countryCode ? `Country Code: ${countryCode}` : 'Global';
+        document.getElementById('temp').textContent = `${Math.round(weather.main.temp)}${tempUnit}`;
+        document.getElementById('feelsLike').textContent = `${Math.round(weather.main.feels_like)}${tempUnit}`;
+        document.getElementById('humidity').textContent = `${weather.main.humidity}%`;
+        document.getElementById('windSpeed').textContent = `${weather.wind.speed} ${speedUnit}`;
+        document.getElementById('weatherDesc').textContent = `${weather.weather[0].main} - ${weather.weather[0].description}`;
+        document.getElementById('weatherIcon').src = `https://openweathermap.org/img/wn/${weather.weather[0].icon}@4x.png`;
+
+        // AQI
+        const aqiVal = aqi.list[0].main.aqi;
+        const aqiMap = { 1: ['Good', 'text-green-400'], 2: ['Fair', 'text-yellow-400'], 3: ['Moderate', 'text-orange-400'], 4: ['Poor', 'text-red-400'], 5: ['Very Poor', 'text-purple-500'] };
+        const aqiText = aqiMap[aqiVal] || ['--'];
+        document.getElementById('aqiStatus').textContent = aqiText[0];
+        document.getElementById('aqiStatus').className = `text-lg font-bold ${aqiText[1]}`;
+
+        // Forecast
+        const fContainer = document.getElementById('forecastContainer');
+        fContainer.innerHTML = forecast.list.slice(1, 7).map(item => `
+          <div class="flex flex-col items-center min-w-[85px] p-3 rounded-2xl bg-slate-900/50 border border-slate-700/50">
+            <span class="text-xs text-slate-400 font-medium">${new Date(item.dt * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            <img src="https://openweathermap.org/img/wn/${item.weather[0].icon}.png" class="w-12 h-12 my-1" />
+            <span class="text-sm font-bold text-white">${Math.round(item.main.temp)}&deg;</span>
+          </div>
+        `).join('');
+
+        loader.classList.add('hidden');
+        weatherArea.classList.remove('hidden');
+        weatherArea.classList.add('flex');
+
+      } catch (err) {
+        loader.classList.add('hidden');
+        alert('Failed to load global weather data.');
+      }
+    }
+  </script>
+</body>
+</html>
