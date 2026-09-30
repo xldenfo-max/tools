@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Pro Downloader - Unlimited No Watermark Saver</title>
+    
+    <!-- Bootstrap & FontAwesome & Google Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            min-height: 100vh;
+        }
+
+        .bg-mesh {
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(254, 44, 85, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(37, 244, 238, 0.12) 0px, transparent 50%);
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-input {
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-input:focus {
+            border-color: #fe2c55;
+            box-shadow: 0 0 20px -3px rgba(254, 44, 85, 0.3);
+        }
+
+        .glow-card:hover {
+            box-shadow: 0 0 35px -5px rgba(254, 44, 85, 0.25);
+        }
+
+        /* Visualizer Animation */
+        .vis-bar {
+            width: 3px;
+            background-color: #25f4ee;
+            border-radius: 2px;
+            height: 5px;
+        }
+
+        .playing .vis-bar {
+            animation: bounce 0.8s ease-in-out infinite;
+        }
+
+        .vis-bar:nth-child(2) { animation-delay: 0.2s; }
+        .vis-bar:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 100% { height: 5px; }
+            50% { height: 18px; }
+        }
+
+        .loader-spin {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-mesh selection:bg-pink-600 selection:text-white">
+
+    <!-- Header Navbar -->
+    <header class="w-full border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-600 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-pink-600/30">
+                    <i class="fab fa-tiktok text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white">TikTok <span class="text-pink-500">PRO</span></h1>
+                    <p class="text-xs text-slate-400 font-medium">No Watermark Saver</p>
+                </div>
+            </div>
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-xs font-semibold">
+                <span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span> Ultra Fast API
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-4xl mx-auto px-6 py-12 w-full flex flex-col items-center">
+        
+        <!-- Hero Section -->
+        <div class="text-center max-w-2xl mx-auto mb-10">
+            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-xs font-semibold tracking-wide uppercase mb-4">
+                <i class="fa-solid fa-bolt"></i> HD & MP3 Downloads
+            </span>
+            <h2 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                Download TikTok Videos <span class="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-cyan-400">Without Watermark</span>
+            </h2>
+            <p class="text-slate-400 text-sm md:text-base mt-3 font-normal">
+                Paste any TikTok video or reel link below to extract high-definition videos and original music tracks instantly.
+            </p>
+        </div>
+
+        <!-- Search Input Box -->
+        <div class="w-full glass-card rounded-3xl p-4 md:p-6 shadow-2xl mb-8">
+            <div class="flex flex-col md:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500">
+                        <i class="fa-solid fa-link text-lg"></i>
+                    </div>
+                    <input 
+                        type="text" 
+                        id="tiktokUrl" 
+                        placeholder="Paste TikTok video URL here..." 
+                        class="w-full pl-11 pr-16 py-4 rounded-2xl glass-input text-white placeholder-slate-500 focus:outline-none text-sm transition-all"
+                    />
+                    <button 
+                        type="button" 
+                        onclick="clearAll()" 
+                        class="absolute inset-y-0 right-0 pr-4 flex items-center text-xs font-semibold text-slate-400 hover:text-pink-400 transition-colors"
+                        title="Clear input">
+                        CLEAR
+                    </button>
+                </div>
+                <button 
+                    type="button" 
+                    id="fetchBtn"
+                    class="px-8 py-4 rounded-2xl bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white font-bold text-sm shadow-lg shadow-pink-600/25 transition-all flex items-center justify-center gap-2 shrink-0">
+                    <i class="fas fa-cloud-download-alt"></i>
+                    <span>Get Video</span>
+                </button>
+            </div>
+            
+            <!-- Terminal Status Box -->
+            <div class="mt-4 bg-slate-950/80 border border-slate-800 rounded-xl p-3 font-mono text-xs text-cyan-400 flex items-center gap-2">
+                <i class="fa-solid fa-terminal text-slate-600"></i>
+                <span id="statusText">System: Ready. Waiting for URL...</span>
+            </div>
+        </div>
+
+        <!-- Results Card -->
+        <div id="results" class="w-full glass-card glow-card rounded-3xl p-6 md:p-8 shadow-2xl hidden transition-all duration-300">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                
+                <!-- Video Preview Column -->
+                <div class="md:col-span-5 flex flex-col items-center">
+                    <div class="relative w-full aspect-[9/16] rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 shadow-xl flex items-center justify-center max-h-[450px]">
+                        <video id="mainVideo" controls autoplay loop playsinline class="w-full h-full object-contain"></video>
+                    </div>
+                </div>
+
+                <!-- Details & Downloads Column -->
+                <div class="md:col-span-7 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="badge bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs px-2.5 py-1 rounded-md" id="v-quality">HD</span>
+                            <span class="badge bg-slate-800 text-slate-300 border border-slate-700 text-xs px-2.5 py-1 rounded-md" id="v-size">N/A</span>
+                        </div>
+                        <h3 id="videoTitle" class="text-lg font-bold text-white mb-1 line-clamp-2">Video Title</h3>
+                        <p class="text-slate-400 text-xs mb-4"><i class="fas fa-user-circle me-1 text-pink-500"></i><span id="authorName">@username</span></p>
+
+                        <!-- Stats Grid -->
+                        <div class="grid grid-cols-2 gap-3 bg-slate-950/50 p-4 rounded-2xl border border-slate-800/80 mb-4 text-xs font-semibold">
+                            <div class="flex items-center gap-2 text-slate-300"><i class="fas fa-play text-cyan-400"></i> <span id="v-views">0</span> Views</div>
+                            <div class="flex items-center gap-2 text-slate-300"><i class="fas fa-heart text-pink-500"></i> <span id="v-likes">0</span> Likes</div>
+                            <div class="flex items-center gap-2 text-slate-300"><i class="fas fa-comment text-amber-400"></i> <span id="v-comments">0</span> Comments</div>
+                            <div class="flex items-center gap-2 text-slate-300"><i class="fas fa-share text-blue-400"></i> <span id="v-shares">0</span> Shares</div>
+                        </div>
+
+                        <!-- Music Info Banner -->
+                        <div class="bg-gradient-to-r from-cyan-500/10 to-pink-500/10 border-l-4 border-cyan-400 p-3 rounded-xl mb-6 flex items-center gap-3" id="musicContainer">
+                            <div class="flex items-end gap-0.5 h-4">
+                                <div class="vis-bar"></div>
+                                <div class="vis-bar"></div>
+                                <div class="vis-bar"></div>
+                            </div>
+                            <marquee scrollamount="4" id="v-music" class="text-xs text-slate-300 font-medium">Music Loading...</marquee>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Download Buttons -->
+                    <div class="flex flex-col gap-3">
+                        <div id="dlButtons" class="flex flex-col gap-2.5">
+                            <!-- Injected via JavaScript -->
+                        </div>
+                        
+                        <button class="w-full py-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 text-xs font-bold transition-all flex items-center justify-center gap-2" onclick="copyCaption()">
+                            <i class="fas fa-copy"></i> COPY VIDEO CAPTION
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full border-t border-slate-800/80 bg-slate-950 py-6 mt-auto">
+        <div class="max-w-6xl mx-auto px-6 text-center">
+            <p class="text-xs font-semibold text-slate-500">
+                © <span id="currentYear"></span> TikTok Pro Downloader — Developed by <span class="text-pink-500">VES INVASION</span>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Script Logic -->
+    <script>
+        const fetchBtn = document.getElementById('fetchBtn');
+        const tiktokUrl = document.getElementById('tiktokUrl');
+        const statusText = document.getElementById('statusText');
+        const resultsDiv = document.getElementById('results');
+        const mainVideo = document.getElementById('mainVideo');
+        const musicContainer = document.getElementById('musicContainer');
+
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        const setStatus = (msg) => { statusText.innerText = `> ${msg}`; };
+        const formatNum = (n) => n >= 1000000 ? (n/1000000).toFixed(1)+'M' : (n >= 1000 ? (n/1000).toFixed(1)+'K' : n);
+
+        function clearAll() {
+            tiktokUrl.value = '';
+            resultsDiv.classList.add('hidden');
+            mainVideo.pause();
+            mainVideo.src = "";
+            musicContainer.classList.remove('playing');
+            setStatus("System: Ready. Waiting for URL...");
+        }
+
+        async function copyCaption() {
+            const cap = document.getElementById('videoTitle').innerText;
+            await navigator.clipboard.writeText(cap);
+            setStatus("Success! Video Caption Copied to Clipboard.");
+        }
+
+        async function downloadFile(url, fileName, btn) {
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<div class="loader-spin"></div><span>Downloading...</span>`;
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl; a.download = fileName;
+                document.body.appendChild(a); a.click();
+                document.body.removeChild(a);
+                setStatus("Success! File downloaded to device.");
+            } catch (e) {
+                window.open(url, '_blank');
+                setStatus("Opening download in new tab...");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        }
+
+        fetchBtn.addEventListener('click', async () => {
+            const url = tiktokUrl.value.trim();
+            if (!url) return setStatus("Error: Please paste a TikTok video link first!");
+
+            resultsDiv.classList.add('hidden');
+            mainVideo.pause();
+            musicContainer.classList.remove('playing');
+            
+            fetchBtn.disabled = true;
+            fetchBtn.innerHTML = `<div class="loader-spin"></div><span>Processing...</span>`;
+            setStatus("Connecting to API & Fetching TikTok Details...");
+
+            try {
+                const api = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}&hd=1`);
+                const res = await api.json();
+
+                if (res.code === 0) {
+                    const d = res.data;
+                    
+                    mainVideo.src = d.play;
+                    document.getElementById('videoTitle').innerText = d.title || "TikTok Video";
+                    document.getElementById('authorName').innerText = `@${d.author.unique_id}`;
+                    document.getElementById('v-views').innerText = formatNum(d.play_count);
+                    document.getElementById('v-likes').innerText = formatNum(d.digg_count);
+                    document.getElementById('v-comments').innerText = formatNum(d.comment_count);
+                    document.getElementById('v-shares').innerText = formatNum(d.share_count);
+                    document.getElementById('v-music').innerText = `${d.music_info.title} - ${d.music_info.author}`;
+                    document.getElementById('v-quality').innerText = d.hdplay ? "1080p FULL HD" : "720p HD";
+                    document.getElementById('v-size').innerText = d.size ? (d.size / (1024 * 1024)).toFixed(1) + " MB" : "N/A";
+
+                    const btnContainer = document.getElementById('dlButtons');
+                    btnContainer.innerHTML = ''; 
+
+                    const dlConfigs = [];
+                    if(d.hdplay) dlConfigs.push({ url: d.hdplay, text: 'Download Full HD (No Watermark)', class: 'bg-pink-600 hover:bg-pink-500 text-white shadow-lg shadow-pink-600/20', file: 'tiktok_hd.mp4' });
+                    if(d.play)   dlConfigs.push({ url: d.play, text: 'Download SD Quality', class: 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700', file: 'tiktok_sd.mp4' });
+                    if(d.music)  dlConfigs.push({ url: d.music, text: 'Download MP3 Audio', class: 'bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-slate-800', file: 'tiktok_audio.mp3' });
+
+                    dlConfigs.forEach(conf => {
+                        const b = document.createElement('button');
+                        b.className = `w-full py-3.5 px-5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${conf.class}`;
+                        b.innerHTML = `<i class="fas fa-download"></i> ${conf.text}`;
+                        b.onclick = () => downloadFile(conf.url, conf.file, b);
+                        btnContainer.appendChild(b);
+                    });
+
+                    resultsDiv.classList.remove('hidden');
+                    
+                    mainVideo.play().then(() => {
+                        musicContainer.classList.add('playing');
+                        setStatus("Success! Playing Video.");
+                    }).catch(() => {
+                        mainVideo.muted = true;
+                        mainVideo.play();
+                        musicContainer.classList.add('playing');
+                        setStatus("Success! Video Playing (Muted by browser safety).");
+                    });
+
+                    window.scrollTo({ top: resultsDiv.offsetTop - 50, behavior: 'smooth' });
+                } else {
+                    setStatus("Error: Invalid Link or Video is Private. Please check and try again.");
+                }
+            } catch (err) {
+                setStatus("Network Error: Unable to fetch data. Please check your internet connection.");
+            } finally {
+                fetchBtn.disabled = false;
+                fetchBtn.innerHTML = `<i class="fas fa-cloud-download-alt"></i><span>Get Video</span>`;
+            }
+        });
+    </script>
+</body>
+</html>
