@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Shortener</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-blue-600/20 text-blue-400 border border-blue-500/30 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-link"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold">URL Shortener</h1>
+                <p class="text-xs text-slate-400">Shorten long links instantly</p>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="text-xs font-semibold text-slate-300 block mb-1">Long Destination URL</label>
+                <input type="url" id="longUrl" placeholder="https://example.com/very-long-url-path" class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-sm focus:outline-none focus:border-blue-500 transition-all">
+            </div>
+
+            <button onclick="shortenLink()" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-blue-600/20">Shorten Link</button>
+
+            <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl flex items-center justify-between">
+                <span id="resultUrl" class="text-sm font-mono text-blue-400 truncate pr-2">Your short link...</span>
+                <button onclick="copyLink()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 shrink-0"><i class="fa-regular fa-copy"></i> Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function shortenLink() {
+            const longUrl = document.getElementById('longUrl').value.trim();
+            const result = document.getElementById('resultUrl');
+            
+            if (!longUrl) return alert('Please enter a valid URL');
+            
+            result.innerText = 'Shortening link...';
+
+            try {
+                // TinyURL plain text link fetching via CORS proxy
+                const targetUrl = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`;
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+                
+                const res = await fetch(proxyUrl);
+                const data = await res.text();
+                
+                if (data && data.trim().startsWith('http')) {
+                    result.innerText = data.trim();
+                } else {
+                    result.innerText = 'Error shortening link';
+                }
+            } catch (e) {
+                result.innerText = 'Failed to shorten. Try again.';
+            }
+        }
+
+        function copyLink() {
+            const text = document.getElementById('resultUrl').innerText;
+            if (text && !text.includes('...')) {
+                navigator.clipboard.writeText(text);
+                alert('Copied to clipboard!');
+            }
+        }
+    </script>
+</body>
+</html>
