@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Thumbnail Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-6">
+        <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-rose-600/20 text-rose-400 border border-rose-500/30 flex items-center justify-center text-xl">
+                <i class="fa-brands fa-youtube"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold">Thumbnail Grabber</h1>
+                <p class="text-xs text-slate-400">Download HD YouTube Thumbnails</p>
+            </div>
+        </div>
+
+        <div class="space-y-4">
+            <input type="url" id="ytUrl" placeholder="https://www.youtube.com/watch?v=..." class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs focus:outline-none focus:border-rose-500">
+            
+            <button onclick="getThumbnail()" class="w-full py-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl font-semibold text-sm transition-all shadow-lg shadow-rose-600/20">Fetch Thumbnail</button>
+
+            <div id="previewBox" class="hidden space-y-3">
+                <img id="thumbImg" class="w-full rounded-2xl border border-slate-800">
+                <a id="downloadBtn" target="_blank" class="block w-full text-center py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700">Open Full Resolution Image</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getThumbnail() {
+            const url = document.getElementById('ytUrl').value;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+
+            if (match && match[2].length === 11) {
+                const videoId = match[2];
+                const thumbUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                document.getElementById('thumbImg').src = thumbUrl;
+                document.getElementById('downloadBtn').href = thumbUrl;
+                document.getElementById('previewBox').classList.remove('hidden');
+            } else {
+                alert('Invalid YouTube URL');
+            }
+        }
+    </script>
+</body>
+</html>
