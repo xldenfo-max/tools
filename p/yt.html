@@ -3,74 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Downloader & Player</title>
+    <title>VES Media Studio - YouTube Downloader & Player</title>
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
+        }
+        .bg-mesh {
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(220, 38, 38, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(185, 28, 28, 0.1) 0px, transparent 50%);
+        }
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+    </style>
 </head>
-<body class="bg-zinc-950 text-zinc-100 min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen bg-mesh flex flex-col justify-between selection:bg-red-600 selection:text-white">
 
-    <div class="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-2xl w-full max-w-lg">
-        <!-- YouTube Red Branding Title -->
-        <div class="flex items-center justify-center gap-2 mb-6">
-            <svg class="w-8 h-8 text-red-600 fill-current" viewBox="0 0 24 24">
-                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-            </svg>
-            <h2 class="text-2xl font-bold tracking-tight text-white">YouTube Downloader</h2>
-        </div>
-        
-        <!-- Type Selection -->
-        <div class="mb-4">
-            <label class="block text-sm font-medium text-zinc-400 mb-2">Select Format:</label>
-            <div class="grid grid-cols-2 gap-4">
-                <button type="button" id="mp3Tab" onclick="switchTab('mp3')" class="py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 bg-red-600 text-white shadow-lg shadow-red-600/20 cursor-pointer">MP3 (Audio)</button>
-                <button type="button" id="mp4Tab" onclick="switchTab('mp4')" class="py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 bg-zinc-800 text-zinc-400 hover:bg-zinc-700 cursor-pointer">MP4 (Video)</button>
+    <!-- Header Navigation -->
+    <header class="w-full glass-panel border-b border-gray-800/60 sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-600 to-rose-500 flex items-center justify-center text-white shadow-lg shadow-red-600/30">
+                    <i class="fa-solid fa-play text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white leading-tight">VES <span class="text-red-500">Media Studio</span></h1>
+                    <p class="text-[11px] text-gray-400 font-medium">Ultimate YouTube Downloader</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5 animate-pulse"></span> PRO Engine
+                </span>
             </div>
         </div>
+    </header>
 
-        <!-- URL Input -->
-        <div class="mb-6">
-            <label for="ytUrl" class="block text-sm font-medium text-zinc-400 mb-2">Enter YouTube URL:</label>
-            <input type="text" id="ytUrl" placeholder="https://www.youtube.com/watch?v=..." 
-                class="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-600 focus:outline-none focus:border-red-600 transition-colors">
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center p-4 md:p-8">
+        <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-xl border border-gray-800/80">
+            
+            <!-- Branding Header -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-red-600/10 text-red-500 border border-red-500/20 mb-3 shadow-inner">
+                    <i class="fa-brands fa-youtube text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-white tracking-tight">Convert & Download</h2>
+                <p class="text-xs text-gray-400 mt-1">High-quality Audio & Video Extraction</p>
+            </div>
+
+            <!-- Format Selector Tabs -->
+            <div class="mb-6 bg-gray-950/60 p-1.5 rounded-2xl border border-gray-800/60 flex space-x-2">
+                <button type="button" id="mp3Tab" onclick="switchTab('mp3')" 
+                    class="flex-1 py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 bg-red-600 text-white shadow-lg shadow-red-600/25 flex items-center justify-center space-x-2 cursor-pointer">
+                    <i class="fa-solid fa-music"></i>
+                    <span>MP3 Audio</span>
+                </button>
+                <button type="button" id="mp4Tab" onclick="switchTab('mp4')" 
+                    class="flex-1 py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 text-gray-400 hover:text-white flex items-center justify-center space-x-2 cursor-pointer">
+                    <i class="fa-solid fa-video"></i>
+                    <span>MP4 Video</span>
+                </button>
+            </div>
+
+            <!-- Input Form -->
+            <div class="mb-6">
+                <label for="ytUrl" class="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wider">YouTube URL</label>
+                <div class="relative">
+                    <input type="text" id="ytUrl" placeholder="https://www.youtube.com/watch?v=..." 
+                        class="w-full px-4 py-3.5 pl-11 bg-gray-950/80 border border-gray-800 rounded-xl text-gray-100 placeholder-gray-600 focus:outline-none focus:border-red-500/80 focus:ring-1 focus:ring-red-500/50 transition-all text-sm">
+                    <i class="fa-solid fa-link absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                </div>
+            </div>
+
+            <!-- Fetch Button -->
+            <button onclick="fetchDownloadLinks()" id="fetchBtn"
+                class="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-red-600/25 transition-all duration-300 flex items-center justify-center space-x-2 cursor-pointer active:scale-[0.99]">
+                <i class="fa-solid fa-bolt"></i>
+                <span>Fetch Download Links</span>
+            </button>
+
+            <!-- Video Quality Sound Notice -->
+            <div id="videoNotice" class="hidden mt-5 bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl text-xs text-amber-300/90 leading-relaxed">
+                <div class="flex items-start space-x-2">
+                    <i class="fa-solid fa-circle-info text-amber-400 text-sm shrink-0 mt-0.5"></i>
+                    <div>
+                        <span class="font-bold block mb-1">Important Note for MP4 Downloads:</span>
+                        YouTube high-resolution streams (720p/1080p) might be provided without embedded audio by default. For audio-included videos, choose <strong>360p or Standard Quality</strong> options, or download MP3 separately.
+                        <span class="text-amber-400/70 mt-1 block">යූ ටියුබ් HD වීඩියෝවල ශබ්දය (Sound) නොමැති විය හැක. Sound සහිතව ලබා ගැනීමට <strong>360p</strong> තෝරාගන්න.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processing / Error State Alerts -->
+            <div id="loadingText" class="hidden mt-6 text-center py-4 bg-gray-950/40 rounded-2xl border border-gray-800/40">
+                <div class="inline-flex items-center space-x-3 text-red-400 font-medium text-sm">
+                    <i class="fa-solid fa-spinner fa-spin text-lg"></i>
+                    <span>Processing request, please wait...</span>
+                </div>
+            </div>
+
+            <div id="errorText" class="hidden mt-6 text-center py-4 bg-rose-500/10 rounded-2xl border border-rose-500/20">
+                <p class="text-rose-400 font-medium text-sm"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Unable to fetch links. Please check the URL and try again.</p>
+            </div>
+
+            <!-- In-Site Audio Player Container -->
+            <div id="playerContainer" class="hidden mt-6 bg-gray-950/90 border border-gray-800 p-4 rounded-2xl text-center">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-xs font-bold text-red-400 uppercase tracking-wider flex items-center">
+                        <i class="fa-solid fa-compact-disc mr-1.5 animate-spin text-sm"></i> Audio Preview
+                    </h4>
+                </div>
+                <audio id="audioPlayer" controls class="w-full accent-red-600 rounded-lg">
+                    Your browser does not support audio playback.
+                </audio>
+            </div>
+
+            <!-- Download Links Results Container -->
+            <div id="resultContainer" class="hidden mt-6 bg-gray-950/90 border border-gray-800 p-4 rounded-2xl">
+                <h4 class="text-xs font-bold text-red-400 uppercase tracking-wider mb-3 flex items-center">
+                    <i class="fa-solid fa-download mr-1.5"></i> Available Downloads
+                </h4>
+                <div id="downloadLinks" class="space-y-2.5 max-h-60 overflow-y-auto custom-scrollbar pr-1"></div>
+            </div>
+
         </div>
+    </main>
 
-        <!-- Submit Button -->
-        <button onclick="fetchDownloadLinks()" 
-            class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-red-600/20 transition-all duration-300 cursor-pointer">
-            Fetch Links
-        </button>
+    <!-- Footer -->
+    <footer class="w-full glass-panel border-t border-gray-800/60 py-4 text-center text-xs text-gray-500">
+        <p>&copy; 2026 VES Invasion Development. All rights reserved.</p>
+    </footer>
 
-        <!-- Notice Box for MP4 Sound Issue (English & Sinhala) -->
-        <div id="videoNotice" class="hidden mt-4 bg-amber-500/10 border border-amber-500/20 p-3.5 rounded-xl text-xs text-amber-300/90 leading-relaxed">
-            <span class="font-bold block mb-1">ℹ️ Important Note about MP4 Video Sound / වීඩියෝ ශබ්දය ගැන සැලකිය යුතුයි:</span>
-            YouTube provides high-resolution videos (like 720p, 1080p) without sound. For sound, please try a <strong>Low Quality (e.g., 360p)</strong> option or download MP3!<br>
-            <span class="text-zinc-400 mt-1 block">යූ ටියුබ් ආයතනය මඟින් High Quality (720p, 1080p) වීඩියෝ ශබ්දය (Sound) නොමැතිව ලබා දෙයි. සවුන්ඩ් එකත් සමඟ වීඩියෝවක් අවශ්‍ය නම් <strong>Low Quality (360p වැනි)</strong> එකක් තෝරාගන්න හෝ වෙනම MP3 එකක් ඩਾਊන්ලෝඩ් කරගන්න!</span>
-        </div>
-
-        <!-- Status Messages -->
-        <div id="loadingText" class="hidden text-center mt-4 text-amber-400 font-medium animate-pulse">Processing, please wait...</div>
-        <div id="errorText" class="hidden text-center mt-4 text-rose-500 font-medium">An error occurred. Please try again.</div>
-
-        <!-- In-Site Audio Player Section (Only for MP3) -->
-        <div id="playerContainer" class="hidden mt-6 bg-zinc-950 border border-zinc-800 p-4 rounded-xl text-center">
-            <h4 class="text-sm font-semibold text-red-500 mb-2">Audio Player:</h4>
-            <audio id="audioPlayer" controls class="w-full mt-2 accent-red-600">
-                Your browser does not support the audio element.
-            </audio>
-        </div>
-
-        <!-- Results Section -->
-        <div id="resultContainer" class="hidden mt-6 bg-zinc-950 border border-zinc-800 p-4 rounded-xl">
-            <h4 class="text-sm font-semibold text-red-500 mb-3">Available Qualities:</h4>
-            <div id="downloadLinks" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
-        </div>
-    </div>
-
-    <!-- Loading Overlay for Direct Download -->
-    <div id="downloadingOverlay" class="hidden fixed inset-0 bg-zinc-950/80 backdrop-blur-sm z-50 flex items-center justify-center">
-        <div class="bg-zinc-900 border border-zinc-800 p-6 rounded-2xl shadow-2xl text-center max-w-sm w-full mx-4">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
-            <p class="text-zinc-200 font-medium" id="downloadStatusText">Downloading file, please wait...</p>
+    <!-- Fullscreen Download Overlay -->
+    <div id="downloadingOverlay" class="hidden fixed inset-0 bg-gray-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="glass-panel p-8 rounded-3xl border border-gray-800 text-center max-w-sm w-full shadow-2xl">
+            <div class="w-12 h-12 rounded-full border-2 border-red-500 border-t-transparent animate-spin mx-auto mb-4"></div>
+            <h3 class="text-white font-bold text-base mb-1">Downloading File</h3>
+            <p class="text-xs text-gray-400">Your download will begin automatically...</p>
         </div>
     </div>
 
@@ -84,17 +166,18 @@
             const videoNotice = document.getElementById('videoNotice');
             
             if (type === 'mp3') {
-                mp3Btn.className = "py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 bg-red-600 text-white shadow-lg shadow-red-600/20 cursor-pointer";
-                mp4Btn.className = "py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 bg-zinc-800 text-zinc-400 hover:bg-zinc-700 cursor-pointer";
-                videoNotice.style.display = 'none';
+                mp3Btn.className = "flex-1 py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 bg-red-600 text-white shadow-lg shadow-red-600/25 flex items-center justify-center space-x-2 cursor-pointer";
+                mp4Btn.className = "flex-1 py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 text-gray-400 hover:text-white flex items-center justify-center space-x-2 cursor-pointer";
+                videoNotice.classList.add('hidden');
             } else {
-                mp4Btn.className = "py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 bg-red-600 text-white shadow-lg shadow-red-600/20 cursor-pointer";
-                mp3Btn.className = "py-2.5 px-4 rounded-xl font-semibold text-sm transition-all duration-300 bg-zinc-800 text-zinc-400 hover:bg-zinc-700 cursor-pointer";
-                videoNotice.style.display = 'block';
+                mp4Btn.className = "flex-1 py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 bg-red-600 text-white shadow-lg shadow-red-600/25 flex items-center justify-center space-x-2 cursor-pointer";
+                mp3Btn.className = "flex-1 py-3 px-4 rounded-xl font-semibold text-xs sm:text-sm transition-all duration-300 text-gray-400 hover:text-white flex items-center justify-center space-x-2 cursor-pointer";
+                videoNotice.classList.remove('hidden');
             }
             
-            document.getElementById('resultContainer').style.display = 'none';
-            document.getElementById('playerContainer').style.display = 'none';
+            document.getElementById('resultContainer').classList.add('hidden');
+            document.getElementById('playerContainer').classList.add('hidden');
+            document.getElementById('errorText').classList.add('hidden');
             document.getElementById('downloadLinks').innerHTML = '';
             
             const audioPlayer = document.getElementById('audioPlayer');
@@ -111,19 +194,19 @@
             const downloadLinksDiv = document.getElementById('downloadLinks');
             const audioPlayer = document.getElementById('audioPlayer');
 
-            errorText.style.display = 'none';
-            resultContainer.style.display = 'none';
-            playerContainer.style.display = 'none';
+            errorText.classList.add('hidden');
+            resultContainer.classList.add('hidden');
+            playerContainer.classList.add('hidden');
             downloadLinksDiv.innerHTML = '';
             audioPlayer.pause();
             audioPlayer.src = '';
 
             if (!urlInput) {
-                alert('Please enter a YouTube URL!');
+                alert('Please enter a valid YouTube URL!');
                 return;
             }
 
-            loadingText.style.display = 'block';
+            loadingText.classList.remove('hidden');
 
             const apiKey = 'supun-psvotb3j6cn8lv4lb3oniwc5';
             const endpoint = currentType === 'mp3' ? 'ytmp3-down' : 'ytmp4-down';
@@ -133,66 +216,70 @@
                 const response = await fetch(apiUrl);
                 const data = await response.json();
 
-                loadingText.style.display = 'none';
+                loadingText.classList.add('hidden');
 
                 if (data.success && data.result && data.result.length > 0) {
-                    resultContainer.style.display = 'block';
+                    resultContainer.classList.remove('hidden');
 
                     if (currentType === 'mp3') {
-                        playerContainer.style.display = 'block';
+                        playerContainer.classList.remove('hidden');
                         audioPlayer.src = data.result[0].downloadUrl;
                         audioPlayer.load();
                     }
                     
                     data.result.forEach((item, index) => {
                         const rowDiv = document.createElement('div');
-                        rowDiv.className = "flex items-center justify-between bg-zinc-900 border border-zinc-800 p-3 rounded-lg text-sm";
+                        rowDiv.className = "flex items-center justify-between bg-gray-900/60 border border-gray-800/80 p-3 rounded-xl text-xs sm:text-sm hover:border-gray-700 transition-colors";
                         
                         const labelText = currentType === 'mp3' 
-                            ? `${item.type} (${item.size})` 
-                            : `Resolution: ${item.resolution} | Size: ${item.size}`;
+                            ? `${item.type || 'MP3 Audio'} (${item.size || 'N/A'})` 
+                            : `Quality: ${item.resolution || 'Auto'} | Size: ${item.size || 'N/A'}`;
                         
                         let buttonsHTML = '';
 
                         if (currentType === 'mp3') {
                             buttonsHTML += `
-                                <button onclick="playAudio('${item.downloadUrl}')" class="bg-red-600/10 text-red-500 text-xs px-2.5 py-1 rounded-md font-semibold border border-red-600/20 hover:bg-red-600/20 transition-colors cursor-pointer mr-2">Play</button>
+                                <button onclick="playAudio('${item.downloadUrl}')" class="bg-red-500/10 text-red-400 text-xs px-3 py-1.5 rounded-lg font-semibold border border-red-500/20 hover:bg-red-500/20 transition-colors cursor-pointer mr-2 flex items-center space-x-1">
+                                    <i class="fa-solid fa-play"></i><span>Play</span>
+                                </button>
                             `;
                         }
 
                         buttonsHTML += `
-                            <button onclick="downloadFile('${item.downloadUrl}', '${currentType === 'mp3' ? `audio_${index + 1}.mp3` : `video_${item.resolution}.mp4`}')" class="bg-emerald-500/10 text-emerald-400 text-xs px-2.5 py-1 rounded-md font-semibold border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors cursor-pointer">Download</button>
+                            <button onclick="downloadFile('${item.downloadUrl}', '${currentType === 'mp3' ? `VES_Audio_${index + 1}.mp3` : `VES_Video_${item.resolution || 'HD'}.mp4`}')" class="bg-emerald-500/10 text-emerald-400 text-xs px-3 py-1.5 rounded-lg font-semibold border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors cursor-pointer flex items-center space-x-1">
+                                <i class="fa-solid fa-download"></i><span>Download</span>
+                            </button>
                         `;
 
                         rowDiv.innerHTML = `
-                            <span class="text-zinc-200 font-medium truncate mr-2">${labelText}</span>
+                            <span class="text-gray-200 font-medium truncate mr-2">${labelText}</span>
                             <div class="flex items-center shrink-0">${buttonsHTML}</div>
                         `;
                         
                         downloadLinksDiv.appendChild(rowDiv);
                     });
                 } else {
-                    errorText.style.display = 'block';
+                    errorText.classList.remove('hidden');
                 }
             } catch (error) {
-                loadingText.style.display = 'none';
-                errorText.style.display = 'block';
-                console.error('Error:', error);
+                loadingText.classList.add('hidden');
+                errorText.classList.remove('hidden');
+                console.error('Fetch Error:', error);
             }
         }
 
         function playAudio(url) {
             const audioPlayer = document.getElementById('audioPlayer');
             const playerContainer = document.getElementById('playerContainer');
-            playerContainer.style.display = 'block';
+            playerContainer.classList.remove('hidden');
             audioPlayer.src = url;
             audioPlayer.load();
-            audioPlayer.play().catch(e => console.log("Playback prevented:", e));
+            audioPlayer.play().catch(e => console.log("Autoplay prevented:", e));
         }
 
         async function downloadFile(fileUrl, filename) {
             const overlay = document.getElementById('downloadingOverlay');
-            overlay.style.display = 'flex';
+            overlay.classList.remove('hidden');
 
             try {
                 const response = await fetch(fileUrl);
@@ -210,10 +297,10 @@
                 window.URL.revokeObjectURL(blobUrl);
                 document.body.removeChild(a);
             } catch (error) {
-                console.error('Download failed, opening in new tab as fallback:', error);
+                console.warn('Direct blob download failed, opening in new tab fallback:', error);
                 window.open(fileUrl, '_blank');
             } finally {
-                overlay.style.display = 'none';
+                overlay.classList.add('hidden');
             }
         }
     </script>
